@@ -1,17 +1,22 @@
 package ui;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Random;
 
 
-public class GameFrame extends JFrame {
+public class GameFrame extends JFrame implements KeyListener {
     public static final int LENGTH = 105; //图片的宽高
 
     //初始化数据
     int[] arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     int[][] newArr = new int[4][4];
+
+    //记录空白图片在二维数组newArr里面的位置
+    int x = 0;
+    int y = 0;
 
     public GameFrame() {
         //初始化界面
@@ -35,11 +40,18 @@ public class GameFrame extends JFrame {
             arr[index] = t;
         }
         for (int i = 0; i < arr.length; i++) {
-            newArr[i / 4][i % 4] = arr[i];
+            if (arr[i] == 0) {
+                x = i / 4;
+                y = i % 4;
+            } else {
+                newArr[i / 4][i % 4] = arr[i];
+            }
         }
     }
 
     private void initImage() {
+        //清空界面
+        getContentPane().removeAll();
         //先加载的图片在上方
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -62,6 +74,9 @@ public class GameFrame extends JFrame {
         JLabel background = new JLabel(icon);
         background.setBounds(40, 40, 508, 560);
         add(background);
+
+        //刷新界面
+        getContentPane().repaint();
     }
 
     private void initJMenuBar() {
@@ -107,5 +122,61 @@ public class GameFrame extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         //取消默认的居中放置
         setLayout(null);
+        //给整个界面添加键盘监听事件
+        this.addKeyListener(this);
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        //左：37 上：38 右：39 下：40
+        int keyCode = e.getKeyCode();
+        switch (keyCode) {
+            case 37:
+                System.out.println("向左移动");
+                if (y < 3) {
+                    newArr[x][y] = newArr[x][y + 1];
+                    newArr[x][y + 1] = 0;
+                    y++;
+                    initImage();
+                }
+                break;
+            case 38:
+                System.out.println("向上移动");
+                if (x < 3) {
+                    newArr[x][y] = newArr[x + 1][y];
+                    newArr[x + 1][y] = 0;
+                    x++;
+                    initImage();
+                }
+                break;
+            case 39:
+                System.out.println("向右移动");
+                if (y > 0) {
+                    newArr[x][y] = newArr[x][y - 1];
+                    newArr[x][y - 1] = 0;
+                    y--;
+                    initImage();
+                }
+                break;
+            case 40:
+                System.out.println("向下移动");
+                if (x > 0) {
+                    newArr[x][y] = newArr[x - 1][y];
+                    newArr[x - 1][y] = 0;
+                    x--;
+                    initImage();
+                }
+                break;
+        }
     }
 }
