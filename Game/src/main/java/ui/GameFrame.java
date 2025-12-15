@@ -30,15 +30,12 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     int stepCount = 0;
 
     //图片路径
-    String pathBackground = "Game\\src\\main\\resources\\image\\background.png";
     String pathAnimal3 = "Game\\src\\main\\resources\\image\\animal\\animal3\\";
-    String pathWin = "Game\\src\\main\\resources\\image\\win.png";
-    String pathAbout = "Game\\src\\main\\resources\\image\\about.png";
 
     //创建图片对象
-    JLabel background = new JLabel(new ImageIcon(pathBackground));
-    JLabel win = new JLabel(new ImageIcon(pathWin));
-    JLabel about = new JLabel(new ImageIcon(pathAbout));
+    JLabel background = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\background.png"));
+    JLabel win = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\win.png"));
+    JLabel about = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\about.png"));
 
     // 创建步数标签
     JLabel stepLabel = new JLabel("步数: 0");
@@ -172,6 +169,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         setLayout(null);
         //给整个界面添加键盘监听事件
         this.addKeyListener(this);
+        //禁止改变界面大小
+        setResizable(false);
     }
 
     private boolean win() {

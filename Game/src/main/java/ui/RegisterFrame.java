@@ -5,6 +5,11 @@ import javax.swing.*;
 public class RegisterFrame extends JFrame {
 
     public RegisterFrame() {
+        initJFrame();
+
+    }
+
+    private void initJFrame() {
         //宽高
         setSize(488,500);
         //标题
