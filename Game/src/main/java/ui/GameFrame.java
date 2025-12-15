@@ -279,11 +279,14 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             stepCount = 0;
             initData();
             initImage();
+
         } else if (source == reLoginItem) {
             setVisible(false);
             new LoginFrame();
+
         } else if (source == closeItem) {
             System.exit(0);
+
         } else if (source == accountItem) {
             JDialog jDialog = new JDialog();
             // 标题设置
