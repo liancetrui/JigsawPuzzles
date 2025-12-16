@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 
@@ -15,28 +18,43 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     //初始化数据
     int[] arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
     int[][] newArr = new int[4][4];
+    // 拼图完成时的目标状态，0代表空白位置
     int[][] finalArr = {
             {1, 2, 3, 4},
             {5, 6, 7, 8},
             {9, 10, 11, 12},
-            {13, 14, 15, 16}
+            {13, 14, 15, 0}
     };
 
-    //记录空白图片在二维数组newArr里面的位置
+    // 记录空白图片(值为0)在二维数组newArr里面的行列位置
     int x = 0;
     int y = 0;
+    
+    // 图片缓存，避免每次移动都重新加载图片
+    private ImageIcon[][] imageCache = new ImageIcon[4][4];
+    private ImageIcon allImageCache = null;
 
     // 记录步数
     int stepCount = 0;
 
     //图片路径
-    String pathAnimal3 = "Game\\src\\main\\resources\\image\\animal\\animal3\\";
+    String pathAnimal = "Game/src/main/resources/image/animal/animal";
+    String pathGirl = "Game/src/main/resources/image/girl/girl";
+    String pathSport = "Game/src/main/resources/image/sport/sport";
+    String path = pathAnimal;
 
     //创建图片对象
-    JLabel background = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\background.png"));
-    JLabel win = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\win.png"));
-    JLabel about = new JLabel(new ImageIcon("Game\\src\\main\\resources\\image\\about.png"));
+    JLabel background = new JLabel(new ImageIcon("Game/src/main/resources/image/background.png"));
+    JLabel win = new JLabel(new ImageIcon("Game/src/main/resources/image/win.png"));
+    JLabel about = new JLabel(new ImageIcon("Game/src/main/resources/image/about.png"));
 
+    //创建更换图片
+    JMenu changeImage = new JMenu("更换图片");
+
+    //创建JMenuItem的对象
+    JMenuItem girl = new JMenuItem("美女");
+    JMenuItem animal = new JMenuItem("动物");
+    JMenuItem sport = new JMenuItem("运动");
     // 创建步数标签
     JLabel stepLabel = new JLabel("步数: 0");
 
@@ -50,67 +68,174 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     JMenuItem closeItem = new JMenuItem("关闭游戏");
     JMenuItem accountItem = new JMenuItem("公众号");
 
+    //创建一个随机数对象
+    int randomNum = 1;
+    
+    // 不重复随机数生成器
+    private List<Integer> animalNumbers;
+    private List<Integer> girlNumbers;
+    private List<Integer> sportNumbers;
+    private int animalIndex = 0;
+    private int girlIndex = 0;
+    private int sportIndex = 0;
+
     public GameFrame() {
-        //初始化界面
+        // 初始化随机图片序列
+        initRandomImageNumbers();
+        // 初始化界面
         initJFrame();
-        //初始化菜单
+        // 初始化菜单
         initJMenuBar();
-        //初始化数据
+        // 初始化数据(确保生成可解的拼图)
         initData();
-        //初始化图片
+        // 加载并缓存图片
+        loadImageCache();
+        // 初始化图片
         initImage();
-        //显示
+        // 显示
         setVisible(true);
     }
-
-    private void initData() {
-        Random r = new Random();
-        for (int i = 0; i < arr.length; i++) {
-            int index = r.nextInt(arr.length);
-            int t = arr[i];
-            arr[i] = arr[index];
-            arr[index] = t;
+    
+    // 初始化不重复的随机图片序列
+    private void initRandomImageNumbers() {
+        // 动物图片: 1-8
+        animalNumbers = new ArrayList<>();
+        for (int i = 1; i <= 8; i++) {
+            animalNumbers.add(i);
         }
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == 0) {
-                x = i / 4;
-                y = i % 4;
-            }
-            newArr[i / 4][i % 4] = arr[i];
+        Collections.shuffle(animalNumbers);
+        
+        // 美女图片: 1-12
+        girlNumbers = new ArrayList<>();
+        for (int i = 1; i <= 12; i++) {
+            girlNumbers.add(i);
         }
+        Collections.shuffle(girlNumbers);
+        
+        // 运动图片: 1-10
+        sportNumbers = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            sportNumbers.add(i);
+        }
+        Collections.shuffle(sportNumbers);
+    }
+    
+    // 获取下一个不重复的动物图片编号
+    private int getNextAnimalNumber() {
+        if (animalIndex >= animalNumbers.size()) {
+            Collections.shuffle(animalNumbers);
+            animalIndex = 0;
+        }
+        return animalNumbers.get(animalIndex++);
+    }
+    
+    // 获取下一个不重复的美女图片编号
+    private int getNextGirlNumber() {
+        if (girlIndex >= girlNumbers.size()) {
+            Collections.shuffle(girlNumbers);
+            girlIndex = 0;
+        }
+        return girlNumbers.get(girlIndex++);
+    }
+    
+    // 获取下一个不重复的运动图片编号
+    private int getNextSportNumber() {
+        if (sportIndex >= sportNumbers.size()) {
+            Collections.shuffle(sportNumbers);
+            sportIndex = 0;
+        }
+        return sportNumbers.get(sportIndex++);
     }
 
+    /**
+     * 初始化拼图数据，确保生成的拼图是可解的
+     */
+    private void initData() {
+        do {
+            // 重置数组
+            for (int i = 0; i < arr.length; i++) {
+                arr[i] = i;
+            }
+            // 使用Fisher-Yates洗牌算法打乱数组
+            Random r = new Random();
+            for (int i = arr.length - 1; i > 0; i--) {
+                int index = r.nextInt(i + 1);
+                int t = arr[i];
+                arr[i] = arr[index];
+                arr[index] = t;
+            }
+            // 将一维数组转换为二维数组，并记录空白位置
+            for (int i = 0; i < arr.length; i++) {
+                if (arr[i] == 0) {
+                    x = i / 4;
+                    y = i % 4;
+                }
+                newArr[i / 4][i % 4] = arr[i];
+            }
+        } while (!isSolvable());  // 如果不可解，重新生成
+    }
+    
+    /**
+     * 检查当前拼图是否可解
+     * 15数码问题可解性判断：逆序数 + 空白所在行数(从下往上数) 为偶数时可解
+     */
+    private boolean isSolvable() {
+        int inversions = 0;
+        // 计算逆序数(不包括空白块0)
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == 0) continue;
+            for (int j = i + 1; j < arr.length; j++) {
+                if (arr[j] == 0) continue;
+                if (arr[i] > arr[j]) {
+                    inversions++;
+                }
+            }
+        }
+        // 空白块所在行(从下往上数，从1开始)
+        int blankRowFromBottom = 4 - x;
+        // 可解条件：逆序数 + 空白所在行数 为偶数
+        return (inversions + blankRowFromBottom) % 2 == 0;
+    }
+    
+    /**
+     * 加载并缓存当前图片集的所有图片
+     */
+    private void loadImageCache() {
+        for (int num = 0; num <= 15; num++) {
+            imageCache[num / 4][num % 4] = new ImageIcon(path + randomNum + "/" + num + ".jpg");
+        }
+        allImageCache = new ImageIcon(path + randomNum + "/" + "all.jpg");
+    }
+
+    /**
+     * 初始化/刷新拼图界面
+     */
     private void initImage() {
-        //清空界面
+        // 清空界面
         getContentPane().removeAll();
         if (win()) {
             initWin();
-            System.out.println("恭喜你，拼图成功！");
         }
-        //先加载的图片在上方
+        // 先加载的图片在上方
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                //获取图片编号
+                // 获取图片编号
                 int num = newArr[i][j];
-                //创建JLabel对象
-                JLabel jLabel = new JLabel(new ImageIcon(pathAnimal3 + num + ".jpg"));
-                //指定图片位置
+                // 使用缓存的图片创建JLabel
+                JLabel jLabel = new JLabel(imageCache[num / 4][num % 4]);
+                // 指定图片位置
                 jLabel.setBounds(LENGTH * j + 84, LENGTH * i + 134, LENGTH, LENGTH);
-                //设置图片的边框
-                //jLabel.setBorder(new BevelBorder(BevelBorder.LOWERED));
+                // 设置图片的边框
                 jLabel.setBorder(BorderFactory.createLineBorder(Color.black));
-                //把容器添加到界面中
+                // 把容器添加到界面中
                 getContentPane().add(jLabel);
             }
         }
-        //后加载的图片在下方
-        //背景
+        // 后加载的图片在下方(背景)
         initBackground();
-
         // 显示步数
         initStepLabel();
-
-        //刷新界面
+        // 刷新界面
         getContentPane().repaint();
     }
 
@@ -133,12 +258,17 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     private void initJMenuBar() {
         //初始化菜单
         JMenuBar jMenuBar = new JMenuBar();
+        //4.把美女，动物，运动添加到更换图片当中
+        changeImage.add(girl);
+        changeImage.add(animal);
+        changeImage.add(sport);
+
 
         //将选项下面的条目添加到选项中
+        funcJMenu.add(changeImage);
         funcJMenu.add(replayItem);
         funcJMenu.add(reLoginItem);
         funcJMenu.add(closeItem);
-
         aboutJMenu.add(accountItem);
 
         //将菜单里面的选项添加到菜单中
@@ -147,6 +277,9 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
         //给这个界面设置菜单
         setJMenuBar(jMenuBar);
+        girl.addActionListener(this);
+        animal.addActionListener(this);
+        sport.addActionListener(this);
 
         replayItem.addActionListener(this);
         reLoginItem.addActionListener(this);
@@ -171,6 +304,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         this.addKeyListener(this);
         //禁止改变界面大小
         setResizable(false);
+        //禁用输入法
+        this.enableInputMethods(false);
     }
 
     private boolean win() {
@@ -192,18 +327,14 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     public void keyPressed(KeyEvent e) {
         if (!win()) {
             int keyCode = e.getKeyCode();
-            switch (keyCode) {
-                case 65 -> {
-                    System.out.println("显示完整图片");
-                    getContentPane().removeAll();
-                    JLabel allJLabel = new JLabel(new ImageIcon(pathAnimal3 + "all.jpg"));
-                    allJLabel.setBounds(84, 134, 420, 420);
-                    add(allJLabel);
-                    add(background);
-                    getContentPane().repaint();
-                }
-                default -> {
-                }
+            // 按A键显示完整图片
+            if (keyCode == 65) {
+                getContentPane().removeAll();
+                JLabel allJLabel = new JLabel(allImageCache);
+                allJLabel.setBounds(84, 134, 420, 420);
+                add(allJLabel);
+                add(background);
+                getContentPane().repaint();
             }
         }
     }
@@ -211,11 +342,10 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     @Override
     public void keyReleased(KeyEvent e) {
         if (!win()) {
-            //左：37 上：38 右：39 下：40
+            // 方向键: 左37 上38 右39 下40
             int keyCode = e.getKeyCode();
             switch (keyCode) {
-                case 37 -> {
-                    System.out.println("向左移动");
+                case 37 -> {  // 左
                     if (y < 3) {
                         newArr[x][y] = newArr[x][y + 1];
                         newArr[x][y + 1] = 0;
@@ -224,8 +354,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                         initImage();
                     }
                 }
-                case 38 -> {
-                    System.out.println("向上移动");
+                case 38 -> {  // 上
                     if (x < 3) {
                         newArr[x][y] = newArr[x + 1][y];
                         newArr[x + 1][y] = 0;
@@ -234,8 +363,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                         initImage();
                     }
                 }
-                case 39 -> {
-                    System.out.println("向右移动");
+                case 39 -> {  // 右
                     if (y > 0) {
                         newArr[x][y] = newArr[x][y - 1];
                         newArr[x][y - 1] = 0;
@@ -244,8 +372,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                         initImage();
                     }
                 }
-                case 40 -> {
-                    System.out.println("向下移动");
+                case 40 -> {  // 下
                     if (x > 0) {
                         newArr[x][y] = newArr[x - 1][y];
                         newArr[x - 1][y] = 0;
@@ -254,9 +381,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                         initImage();
                     }
                 }
-                case 65 -> initImage();
-                case 87 -> {
-                    System.out.println("一键通关");
+                case 65 -> initImage();  // A键释放时恢复拼图
+                case 87 -> {  // W键一键通关(调试用)
                     for (int i = 0; i < newArr.length; i++) {
                         for (int j = 0; j < newArr[i].length; j++) {
                             newArr[i][j] = finalArr[i][j];
@@ -266,7 +392,6 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                     y = 3;
                     initImage();
                 }
-                default -> System.out.println(keyCode);
             }
         }
     }
@@ -274,14 +399,39 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+
+        // 更换图片类型
+        if (source == animal) {
+            randomNum = getNextAnimalNumber();
+            stepCount = 0;
+            path = pathAnimal;
+            initData();
+            loadImageCache();
+            initImage();
+        } else if (source == girl) {
+            randomNum = getNextGirlNumber();
+            stepCount = 0;
+            path = pathGirl;
+            initData();
+            loadImageCache();
+            initImage();
+        } else if (source == sport) {
+            randomNum = getNextSportNumber();
+            stepCount = 0;
+            path = pathSport;
+            initData();
+            loadImageCache();
+            initImage();
+        }
+
+        // 功能菜单操作
         if (source == replayItem) {
-            // 重置步数
+            // 重新开始：重置步数并生成新的拼图
             stepCount = 0;
             initData();
             initImage();
-
         } else if (source == reLoginItem) {
-            setVisible(false);
+            dispose();  // 销毁游戏窗口，释放资源
             new LoginFrame();
 
         } else if (source == closeItem) {
