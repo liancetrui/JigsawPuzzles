@@ -6,7 +6,7 @@ public class RegisterFrame extends JFrame {
 
     public RegisterFrame() {
         initJFrame();
-
+        //TODO 完成注册界面
     }
 
     private void initJFrame() {
