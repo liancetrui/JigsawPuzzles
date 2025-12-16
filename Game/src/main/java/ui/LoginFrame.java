@@ -1,22 +1,37 @@
 package ui;
 
+import Bean.User;
+import CodeUtil.GetCode;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-public class LoginFrame extends JFrame implements ActionListener {
+import static CodeUtil.GetCode.getCode;
+
+public class LoginFrame extends JFrame implements ActionListener, MouseListener {
+    static ArrayList<User> list = new ArrayList<>();
+    
+    static {
+        list.add(new User("114514","1919810"));
+    }
+    String code = getCode();
     //图片
     JLabel background = new JLabel(new ImageIcon("Game/src/main/resources/image/login/background.png"));
-    JLabel userName = new JLabel(new ImageIcon("Game/src/main/resources/image/login/用户名.png"));
-    JLabel password = new JLabel(new ImageIcon("Game/src/main/resources/image/login/密码.png"));
+    JLabel usernameImage = new JLabel(new ImageIcon("Game/src/main/resources/image/login/用户名.png"));
+    JLabel passwordImage = new JLabel(new ImageIcon("Game/src/main/resources/image/login/密码.png"));
     JLabel captcha = new JLabel(new ImageIcon("Game/src/main/resources/image/login/验证码.png"));
     JButton loginButton = new JButton(new ImageIcon("Game/src/main/resources/image/login/登录按钮.png"));
     JButton registerButton = new JButton(new ImageIcon("Game/src/main/resources/image/login/注册按钮.png"));
     JButton codeJButton = new JButton();
 
     //输入框
-    JTextField usernameText = new JTextField();
-    JPasswordField passwordText = new JPasswordField();
+    JTextField usernameImageText = new JTextField();
+    JPasswordField passwordImageText = new JPasswordField();
     JTextField captchaText = new JTextField();
 
     public LoginFrame() {
@@ -28,29 +43,59 @@ public class LoginFrame extends JFrame implements ActionListener {
         setVisible(true);
     }
 
+    private void login() {
+        if (checkAccount()){
+            System.out.println("登录成功");
+            setVisible(false);
+            new GameFrame();
+        }else {
+            System.out.println("登录失败");
+            showJDialog("登录失败");
+        }
+    }
+
+
+    private boolean checkAccount() {
+        String username = usernameImageText.getText();
+        char[] password = passwordImageText.getPassword();
+        String captcha = captchaText.getText();
+        User user = null;
+        for (int i = 0; i < list.size(); i++) {
+            user = list.get(i);
+        }
+        boolean result = false;
+        if (user != null) {
+            result = username.equals(user.getUsername())
+                    && Arrays.equals(password, user.getPassword().toCharArray())
+                    && captcha.equals(code)
+            ;
+        }
+        return result;
+    }
+
     private void initView() {
         //添加用户名图片
-        userName.setBounds(100, 150, 47, 17);
-        getContentPane().add(userName);
+        usernameImage.setBounds(100, 150, 47, 17);
+        getContentPane().add(usernameImage);
 
         //添加用户名输入框
-        usernameText.setBounds(150, 141, 200, 30);
-        getContentPane().add(usernameText);
+        usernameImageText.setBounds(150, 141, 200, 30);
+        getContentPane().add(usernameImageText);
 
         //添加密码图片
-        password.setBounds(110, 215, 32, 16);
-        getContentPane().add(password);
+        passwordImage.setBounds(110, 215, 32, 16);
+        getContentPane().add(passwordImage);
 
         //添加密码输入框
-        passwordText.setBounds(150, 211, 200, 30);
-        getContentPane().add(passwordText);
+        passwordImageText.setBounds(150, 211, 200, 30);
+        getContentPane().add(passwordImageText);
 
         //添加验证码图片
         captcha.setBounds(100, 280, 56, 21);
         getContentPane().add(captcha);
 
         //添加验证码
-        codeJButton.setText(CodeUtil.GetCode.getCode());
+        codeJButton.setText(code);
         codeJButton.addActionListener(this);
         codeJButton.setBounds(280, 272, 70, 30);
         //去除按钮的默认边框
@@ -71,6 +116,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         loginButton.setBorderPainted(false);
         //去除按钮的默认背景
         loginButton.setContentAreaFilled(false);
+        loginButton.addMouseListener(this);
         getContentPane().add(loginButton);
 
         //添加注册按钮
@@ -83,8 +129,9 @@ public class LoginFrame extends JFrame implements ActionListener {
 
         background.setBounds(0, 0, 470, 390);
         getContentPane().add(background);
-    }
 
+        getContentPane().repaint();
+    }
 
     private void initJFrame() {
         //宽高
@@ -127,7 +174,37 @@ public class LoginFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String code = CodeUtil.GetCode.getCode();
+        code = getCode();
         codeJButton.setText(code);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        Object source = e.getSource();
+        if (source == loginButton){
+            login();
+            code = getCode();
+            codeJButton.setText(code);
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
     }
 }

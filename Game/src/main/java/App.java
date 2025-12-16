@@ -9,6 +9,6 @@ public class App {
         // 创建注册界面
         //new RegisterFrame();
         // 创建游戏界面
-//        new GameFrame();
+        //new GameFrame();
     }
 }
