@@ -1,6 +1,7 @@
 package ui;
 
 import util.ResourcePathUtil;
+import util.ImageUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -213,10 +214,26 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
      * 加载并缓存当前图片集的所有图片
      */
     private void loadImageCache() {
+        // 创建默认的白色图片
+        ImageIcon defaultImage = ImageUtil.createDefaultPuzzleImage();
+        
         for (int num = 0; num <= 15; num++) {
-            imageCache[num / 4][num % 4] = new ImageIcon(getResourceUrl(path + randomNum + "/" + num + ".jpg"));
+            URL imageUrl = getResourceUrl(path + randomNum + "/" + num + ".jpg");
+            if (imageUrl != null) {
+                imageCache[num / 4][num % 4] = new ImageIcon(imageUrl);
+            } else {
+                // 如果图片不存在，使用默认白色图片
+                imageCache[num / 4][num % 4] = defaultImage;
+            }
         }
-        allImageCache = new ImageIcon(getResourceUrl(path + randomNum + "/" + "all.jpg"));
+        
+        URL allImageUrl = getResourceUrl(path + randomNum + "/" + "all.jpg");
+        if (allImageUrl != null) {
+            allImageCache = new ImageIcon(allImageUrl);
+        } else {
+            // 如果完整图片不存在，使用默认白色图片
+            allImageCache = defaultImage;
+        }
     }
 
     /**
