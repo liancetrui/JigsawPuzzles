@@ -1,4 +1,3 @@
-import ui.GameFrame;
 import ui.LoginFrame;
 
 public class App {
