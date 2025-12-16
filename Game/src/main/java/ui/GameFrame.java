@@ -1,11 +1,14 @@
 package ui;
 
+import util.ResourcePathUtil;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,15 +41,15 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     int stepCount = 0;
 
     //图片路径
-    String pathAnimal = "Game/src/main/resources/image/animal/animal";
-    String pathGirl = "Game/src/main/resources/image/girl/girl";
-    String pathSport = "Game/src/main/resources/image/sport/sport";
+    String pathAnimal = "image/animal/animal";
+    String pathGirl = "image/girl/girl";
+    String pathSport = "image/sport/sport";
     String path = pathAnimal;
 
     //创建图片对象
-    JLabel background = new JLabel(new ImageIcon("Game/src/main/resources/image/background.png"));
-    JLabel win = new JLabel(new ImageIcon("Game/src/main/resources/image/win.png"));
-    JLabel about = new JLabel(new ImageIcon("Game/src/main/resources/image/about.png"));
+    JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/background.png")));
+    JLabel win = new JLabel(new ImageIcon(getResourceUrl("image/win.png")));
+    JLabel about = new JLabel(new ImageIcon(getResourceUrl("image/about.png")));
 
     //创建更换图片
     JMenu changeImage = new JMenu("更换图片");
@@ -94,6 +97,15 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         initImage();
         // 显示
         setVisible(true);
+    }
+    
+    /**
+     * 获取资源URL
+     * @param path 资源路径
+     * @return URL对象
+     */
+    private URL getResourceUrl(String path) {
+        return ResourcePathUtil.getResourceUrl(path);
     }
     
     // 初始化不重复的随机图片序列
@@ -202,9 +214,9 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
      */
     private void loadImageCache() {
         for (int num = 0; num <= 15; num++) {
-            imageCache[num / 4][num % 4] = new ImageIcon(path + randomNum + "/" + num + ".jpg");
+            imageCache[num / 4][num % 4] = new ImageIcon(getResourceUrl(path + randomNum + "/" + num + ".jpg"));
         }
-        allImageCache = new ImageIcon(path + randomNum + "/" + "all.jpg");
+        allImageCache = new ImageIcon(getResourceUrl(path + randomNum + "/" + "all.jpg"));
     }
 
     /**

@@ -1,36 +1,38 @@
 package ui;
 
 import controller.AuthController;
+import util.ResourcePathUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.net.URL;
 
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
     private AuthController authController = new AuthController();
     
     String code = authController.generateCaptcha();
     //图片
-    JLabel background = new JLabel(new ImageIcon("Game/src/main/resources/image/login/background.png"));
-    JLabel usernameImage = new JLabel(new ImageIcon("Game/src/main/resources/image/login/用户名.png"));
-    JLabel passwordImage = new JLabel(new ImageIcon("Game/src/main/resources/image/login/密码.png"));
+    JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/login/background.png")));
+    JLabel usernameImage = new JLabel(new ImageIcon(getResourceUrl("image/login/用户名.png")));
+    JLabel passwordImage = new JLabel(new ImageIcon(getResourceUrl("image/login/密码.png")));
     //验证码
-    JLabel captcha = new JLabel(new ImageIcon("Game/src/main/resources/image/login/验证码.png"));
+    JLabel captcha = new JLabel(new ImageIcon(getResourceUrl("image/login/验证码.png")));
     JButton codeJButton = new JButton();
     //登录
-    ImageIcon loginButtonIcon = new ImageIcon("Game/src/main/resources/image/login/登录按钮.png");
-    ImageIcon loginButtonIconPressed = new ImageIcon("Game/src/main/resources/image/login/登录按下.png");
+    ImageIcon loginButtonIcon = new ImageIcon(getResourceUrl("image/login/登录按钮.png"));
+    ImageIcon loginButtonIconPressed = new ImageIcon(getResourceUrl("image/login/登录按下.png"));
     JButton loginButton = new JButton(loginButtonIcon);
     //注册
-    ImageIcon registerButtonIcon = new ImageIcon("Game/src/main/resources/image/login/注册按钮.png");
-    ImageIcon registerButtonIconPressed = new ImageIcon("Game/src/main/resources/image/login/注册按下.png");
+    ImageIcon registerButtonIcon = new ImageIcon(getResourceUrl("image/login/注册按钮.png"));
+    ImageIcon registerButtonIconPressed = new ImageIcon(getResourceUrl("image/login/注册按下.png"));
     JButton registerButton = new JButton(registerButtonIcon);
     
     // 显示密码按钮
-    ImageIcon showPasswordIcon = new ImageIcon("Game/src/main/resources/image/login/显示密码.png");
-    ImageIcon showPasswordPressedIcon = new ImageIcon("Game/src/main/resources/image/login/显示密码按下.png");
+    ImageIcon showPasswordIcon = new ImageIcon(getResourceUrl("image/login/显示密码.png"));
+    ImageIcon showPasswordPressedIcon = new ImageIcon(getResourceUrl("image/login/显示密码按下.png"));
     JButton showPasswordButton = new JButton(showPasswordIcon);
 
 
@@ -50,6 +52,15 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
 
         //显示
         setVisible(true);
+    }
+
+    /**
+     * 获取资源URL
+     * @param path 资源路径
+     * @return URL对象
+     */
+    private URL getResourceUrl(String path) {
+        return ResourcePathUtil.getResourceUrl(path);
     }
 
     /**
