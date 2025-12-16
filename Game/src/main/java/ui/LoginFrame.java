@@ -1,26 +1,17 @@
 package ui;
 
-import Bean.User;
+import controller.AuthController;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import static CodeUtil.GetCode.getCode;
 
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
-    static ArrayList<User> list = new ArrayList<>();
-
-    static {
-        list.add(new User("114514", "1919810"));
-        list.add(new User("1919810", "114514"));
-    }
-
-    String code = getCode();
+    private AuthController authController = new AuthController();
+    
+    String code = authController.generateCaptcha();
     //图片
     JLabel background = new JLabel(new ImageIcon("Game/src/main/resources/image/login/background.png"));
     JLabel usernameImage = new JLabel(new ImageIcon("Game/src/main/resources/image/login/用户名.png"));
@@ -65,51 +56,18 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
      * 执行登录操作
      */
     private void login() {
-        String errorMsg = checkAccount();
+        String errorMsg = authController.validateLogin(
+            usernameImageText.getText(),
+            passwordImageText.getPassword(),
+            captchaText.getText(),
+            code
+        );
         if (errorMsg == null) {
             dispose();  // 销毁登录窗口，释放资源
             new GameFrame();
         } else {
             showJDialog(errorMsg);
         }
-    }
-
-    /**
-     * 检查账号信息，返回错误信息，如果通过则返回null
-     */
-    private String checkAccount() {
-        String username = usernameImageText.getText();
-        char[] password = passwordImageText.getPassword();
-        String captcha = captchaText.getText();
-        
-        // 检查用户名是否为空
-        if (username == null || username.trim().isEmpty()) {
-            return "用户名不能为空";
-        }
-        
-        // 检查密码是否为空
-        if (password == null || password.length == 0) {
-            return "密码不能为空";
-        }
-        
-        // 检查验证码是否为空
-        if (captcha == null || captcha.trim().isEmpty()) {
-            return "验证码不能为空";
-        }
-        
-        // 验证码校验
-        if (!captcha.equals(code)) {
-            return "验证码错误";
-        }
-        
-        // 遍历用户列表查找匹配的账号
-        for (User user : list) {
-            if (username.equals(user.getUsername()) 
-                && Arrays.equals(password, user.getPassword().toCharArray())) {
-                return null;  // 登录成功
-            }
-        }
-        return "用户名或密码错误";
     }
 
     private void initView() {
@@ -226,7 +184,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         Object source = e.getSource();
         if (source == codeJButton) {
             // 刷新验证码
-            code = getCode();
+            code = authController.generateCaptcha();
             codeJButton.setText(code);
         } else if (source == showPasswordButton) {
             // 切换密码显示/隐藏
@@ -265,7 +223,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         if (source == loginButton) {
             loginButton.setIcon(loginButtonIcon);
             login();
-            code = getCode();
+            code = authController.generateCaptcha();
             codeJButton.setText(code);
         } else if (source == registerButton) {
             registerButton.setIcon(registerButtonIcon);
