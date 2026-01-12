@@ -45,6 +45,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     String pathAnimal = "image/animal/animal";
     String pathGirl = "image/girl/girl";
     String pathSport = "image/sport/sport";
+    String pathPerson = "image/person/person";
     String path = pathAnimal;
 
     //创建图片对象
@@ -59,6 +60,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     JMenuItem girl = new JMenuItem("美女");
     JMenuItem animal = new JMenuItem("动物");
     JMenuItem sport = new JMenuItem("运动");
+    JMenuItem person = new JMenuItem("人");
     // 创建步数标签
     JLabel stepLabel = new JLabel("步数: 0");
 
@@ -79,6 +81,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     private List<Integer> animalNumbers;
     private List<Integer> girlNumbers;
     private List<Integer> sportNumbers;
+    private List<Integer> personNumbers;
+    private int personIndex = 0;
     private int animalIndex = 0;
     private int girlIndex = 0;
     private int sportIndex = 0;
@@ -99,7 +103,26 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         // 显示
         setVisible(true);
     }
-    
+    private void initJFrame() {
+        //宽高
+        setSize(603, 680);
+        //标题
+        setTitle("拼图游戏 v1.0");
+        //置顶
+        setAlwaysOnTop(true);
+        //居中
+        setLocationRelativeTo(null);
+        //关闭模式
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //取消默认的居中放置
+        setLayout(null);
+        //给整个界面添加键盘监听事件
+        addKeyListener(this);
+        //禁止改变界面大小
+        setResizable(false);
+        //禁用输入法
+        enableInputMethods(false);
+    }
     /**
      * 获取资源URL
      * @param path 资源路径
@@ -131,8 +154,23 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             sportNumbers.add(i);
         }
         Collections.shuffle(sportNumbers);
+
+        // 人图片: 1-2
+        personNumbers = new ArrayList<>();
+        for (int i = 1; i <= 2; i++) {
+            personNumbers.add(i);
+        }
+        Collections.shuffle(personNumbers);
     }
-    
+    // 获取下一个不重复的人图片编号
+    private int getNextPersonNumber() {
+        if (personIndex >= personNumbers.size()) {
+            Collections.shuffle(personNumbers);
+            personIndex = 0;
+        }
+        return personNumbers.get(personIndex++);
+    }
+
     // 获取下一个不重复的动物图片编号
     private int getNextAnimalNumber() {
         if (animalIndex >= animalNumbers.size()) {
@@ -291,6 +329,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         changeImage.add(girl);
         changeImage.add(animal);
         changeImage.add(sport);
+        changeImage.add(person);
 
 
         //将选项下面的条目添加到选项中
@@ -309,32 +348,12 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         girl.addActionListener(this);
         animal.addActionListener(this);
         sport.addActionListener(this);
+        person.addActionListener(this);
 
         replayItem.addActionListener(this);
         reLoginItem.addActionListener(this);
         closeItem.addActionListener(this);
         accountItem.addActionListener(this);
-    }
-
-    private void initJFrame() {
-        //宽高
-        setSize(603, 680);
-        //标题
-        setTitle("拼图游戏 v1.0");
-        //置顶
-        setAlwaysOnTop(true);
-        //居中
-        setLocationRelativeTo(null);
-        //关闭模式
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //取消默认的居中放置
-        setLayout(null);
-        //给整个界面添加键盘监听事件
-        this.addKeyListener(this);
-        //禁止改变界面大小
-        setResizable(false);
-        //禁用输入法
-        this.enableInputMethods(false);
     }
 
     private boolean win() {
@@ -354,73 +373,77 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (!win()) {
-            int keyCode = e.getKeyCode();
-            // 按A键显示完整图片
-            if (keyCode == 65) {
-                getContentPane().removeAll();
-                JLabel allJLabel = new JLabel(allImageCache);
-                allJLabel.setBounds(84, 134, 420, 420);
-                add(allJLabel);
-                add(background);
-                getContentPane().repaint();
-            }
+        if (win()){
+            return;
+        }
+
+        int keyCode = e.getKeyCode();
+        // 按A键显示完整图片
+        if (keyCode == 65) {
+            getContentPane().removeAll();
+            JLabel allJLabel = new JLabel(allImageCache);
+            allJLabel.setBounds(84, 134, 420, 420);
+            add(allJLabel);
+            add(background);
+            getContentPane().repaint();
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (!win()) {
-            // 方向键: 左37 上38 右39 下40
-            int keyCode = e.getKeyCode();
-            switch (keyCode) {
-                case 37 -> {  // 左
-                    if (y < 3) {
-                        newArr[x][y] = newArr[x][y + 1];
-                        newArr[x][y + 1] = 0;
-                        y++;
-                        stepCount++;
-                        initImage();
-                    }
-                }
-                case 38 -> {  // 上
-                    if (x < 3) {
-                        newArr[x][y] = newArr[x + 1][y];
-                        newArr[x + 1][y] = 0;
-                        x++;
-                        stepCount++;
-                        initImage();
-                    }
-                }
-                case 39 -> {  // 右
-                    if (y > 0) {
-                        newArr[x][y] = newArr[x][y - 1];
-                        newArr[x][y - 1] = 0;
-                        y--;
-                        stepCount++;
-                        initImage();
-                    }
-                }
-                case 40 -> {  // 下
-                    if (x > 0) {
-                        newArr[x][y] = newArr[x - 1][y];
-                        newArr[x - 1][y] = 0;
-                        x--;
-                        stepCount++;
-                        initImage();
-                    }
-                }
-                case 65 -> initImage();  // A键释放时恢复拼图
-                case 87 -> {  // W键一键通关(调试用)
-                    for (int i = 0; i < newArr.length; i++) {
-                        for (int j = 0; j < newArr[i].length; j++) {
-                            newArr[i][j] = finalArr[i][j];
-                        }
-                    }
-                    x = 3;
-                    y = 3;
+        if (win()){
+            return;
+        }
+
+        // 方向键: 左37 上38 右39 下40
+        int keyCode = e.getKeyCode();
+        switch (keyCode) {
+            case 37 -> {  // 左
+                if (y < 3) {
+                    newArr[x][y] = newArr[x][y + 1];
+                    newArr[x][y + 1] = 0;
+                    y++;
+                    stepCount++;
                     initImage();
                 }
+            }
+            case 38 -> {  // 上
+                if (x < 3) {
+                    newArr[x][y] = newArr[x + 1][y];
+                    newArr[x + 1][y] = 0;
+                    x++;
+                    stepCount++;
+                    initImage();
+                }
+            }
+            case 39 -> {  // 右
+                if (y > 0) {
+                    newArr[x][y] = newArr[x][y - 1];
+                    newArr[x][y - 1] = 0;
+                    y--;
+                    stepCount++;
+                    initImage();
+                }
+            }
+            case 40 -> {  // 下
+                if (x > 0) {
+                    newArr[x][y] = newArr[x - 1][y];
+                    newArr[x - 1][y] = 0;
+                    x--;
+                    stepCount++;
+                    initImage();
+                }
+            }
+            case 65 -> initImage();  // A键释放时恢复拼图
+            case 87 -> {  // W键一键通关(调试用)
+                for (int i = 0; i < newArr.length; i++) {
+                    for (int j = 0; j < newArr[i].length; j++) {
+                        newArr[i][j] = finalArr[i][j];
+                    }
+                }
+                x = 3;
+                y = 3;
+                initImage();
             }
         }
     }
@@ -448,6 +471,13 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             randomNum = getNextSportNumber();
             stepCount = 0;
             path = pathSport;
+            initData();
+            loadImageCache();
+            initImage();
+        } else if (source == person) {
+            randomNum = getNextPersonNumber();
+            stepCount = 0;
+            path = pathPerson;
             initData();
             loadImageCache();
             initImage();

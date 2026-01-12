@@ -4,11 +4,13 @@ import controller.AuthController;
 import util.ResourcePathUtil;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
+import java.util.Locale;
 
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
     private AuthController authController = new AuthController();
@@ -54,6 +56,23 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         setVisible(true);
     }
 
+    private void initJFrame() {
+        //宽高
+        setSize(488, 430);
+        //标题
+        setTitle("拼图游戏 登录界面");
+        //置顶
+        setAlwaysOnTop(true);
+        //居中
+        setLocationRelativeTo(null);
+        //关闭模式
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        //禁止改变大小
+        setResizable(false);
+        //取消内部默认布局
+        setLayout(null);
+    }
+
     /**
      * 获取资源URL
      * @param path 资源路径
@@ -88,6 +107,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
 
         //添加用户名输入框
         usernameImageText.setBounds(150, 141, 200, 30);
+        usernameImageText.enableInputMethods(false);
         getContentPane().add(usernameImageText);
 
         //添加密码图片
@@ -97,6 +117,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         //添加密码输入框
         passwordImageText.setBounds(150, 211, 200, 30);
         passwordImageText.setEchoChar('●');
+        passwordImageText.enableInputMethods(false);
         getContentPane().add(passwordImageText);
         
         // 添加显示密码按钮
@@ -125,6 +146,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
 
         //添加验证码输入框
         captchaText.setBounds(180, 273, 100, 30);
+        captchaText.enableInputMethods(false);
         getContentPane().add(captchaText);
 
         //添加登录按钮
@@ -149,23 +171,6 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         getContentPane().add(background);
 
         getContentPane().repaint();
-    }
-
-    private void initJFrame() {
-        //宽高
-        setSize(488, 430);
-        //标题
-        setTitle("拼图游戏 登录界面");
-        //置顶
-        setAlwaysOnTop(true);
-        //居中
-        setLocationRelativeTo(null);
-        //关闭模式
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //禁止改变大小
-        setResizable(false);
-        //取消内部默认布局
-        setLayout(null);
     }
 
     //要展示用户名或密码错误

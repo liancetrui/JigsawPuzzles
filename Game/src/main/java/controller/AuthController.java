@@ -12,16 +12,36 @@ public class AuthController {
     static {
         userList.add(new User("114514", "1919810"));
         userList.add(new User("1919810", "114514"));
+        userList.add(new User("1", "1"));
     }
     
     /**
      * 验证用户登录
      * @param username 用户名
      * @param password 密码
-     * @param captcha 验证码
-     * @param actualCode 实际验证码
      * @return 错误信息，如果验证通过则返回null
      */
+    public String vipLogin(String username, char[] password) {
+        // 检查用户名是否为空
+        if (username == null || username.trim().isEmpty()) {
+            return "用户名不能为空";
+        }
+
+        // 检查密码是否为空
+        if (password == null || password.length == 0) {
+            return "密码不能为空";
+        }
+
+        // 遍历用户列表查找匹配的账号
+        for (User user : userList) {
+            if (username.equals(user.getUsername())
+                    && Arrays.equals(password, user.getPassword().toCharArray())) {
+                return null; // 登录成功
+            }
+        }
+        return "用户名或密码错误";
+    }
+
     public String validateLogin(String username, char[] password, String captcha, String actualCode) {
         // 检查用户名是否为空
         if (username == null || username.trim().isEmpty()) {
@@ -39,14 +59,14 @@ public class AuthController {
         }
 
         // 验证码校验
-        if (!captcha.equalsIgnoreCase(actualCode)) {
+        if (!captcha.equals(actualCode)) {
             return "验证码错误";
         }
 
         // 遍历用户列表查找匹配的账号
         for (User user : userList) {
-            if (username.equals(user.getUsername()) 
-                && Arrays.equals(password, user.getPassword().toCharArray())) {
+            if (username.equals(user.getUsername())
+                    && Arrays.equals(password, user.getPassword().toCharArray())) {
                 return null; // 登录成功
             }
         }
