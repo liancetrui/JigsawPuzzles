@@ -10,40 +10,41 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
 
+// 登录界面
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
+    // 认证控制器
     private AuthController authController = new AuthController();
 
+    // 验证码
     String code = authController.generateCaptcha();
-    //图片
+    // 图片组件
     JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/login/background.png")));
     JLabel usernameImage = new JLabel(new ImageIcon(getResourceUrl("image/login/用户名.png")));
     JLabel passwordImage = new JLabel(new ImageIcon(getResourceUrl("image/login/密码.png")));
-    //验证码
     JLabel captcha = new JLabel(new ImageIcon(getResourceUrl("image/login/验证码.png")));
     JButton codeJButton = new JButton();
-    //登录
+    // 登录按钮
     ImageIcon loginButtonIcon = new ImageIcon(getResourceUrl("image/login/登录按钮.png"));
     ImageIcon loginButtonIconPressed = new ImageIcon(getResourceUrl("image/login/登录按下.png"));
     JButton loginButton = new JButton(loginButtonIcon);
-    //注册
+    // 注册按钮
     ImageIcon registerButtonIcon = new ImageIcon(getResourceUrl("image/login/注册按钮.png"));
     ImageIcon registerButtonIconPressed = new ImageIcon(getResourceUrl("image/login/注册按下.png"));
     JButton registerButton = new JButton(registerButtonIcon);
-
     // 显示密码按钮
     ImageIcon showPasswordIcon = new ImageIcon(getResourceUrl("image/login/显示密码.png"));
     ImageIcon showPasswordPressedIcon = new ImageIcon(getResourceUrl("image/login/显示密码按下.png"));
     JButton showPasswordButton = new JButton(showPasswordIcon);
 
+    // 密码是否可见
+    boolean isPasswordVisible = false;
 
-    boolean isPasswordVisible = false;  // 密码是否可见
-
-
-    //输入框
+    // 输入框
     JTextField usernameImageText = new JTextField();
     JPasswordField passwordImageText = new JPasswordField();
     JTextField captchaText = new JTextField();
 
+    // 构造方法
     public LoginFrame() {
         authController.loadUsers();
         initJFrame();
@@ -51,67 +52,55 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         setVisible(true);
     }
 
-
+    // 初始化窗口
     private void initJFrame() {
-        //宽高
         setSize(488, 430);
-        //标题
         setTitle("拼图游戏 登录界面");
-        //置顶
         setAlwaysOnTop(true);
-        //居中
         setLocationRelativeTo(null);
-        //关闭模式
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //禁止改变大小
         setResizable(false);
-        //取消内部默认布局
         setLayout(null);
     }
 
-    /**
-     * 获取资源URL
-     *
-     * @param path 资源路径
-     * @return URL对象
-     */
+    // 获取资源URL
     private URL getResourceUrl(String path) {
         return ResourcePathUtil.getResourceUrl(path);
     }
 
-    /**
-     * 执行登录操作
-     */
+    // 执行登录操作
     private void login() {
+        String username = usernameImageText.getText();
         String errorMsg = authController.validateLogin(
-                usernameImageText.getText(),
+                username,
                 passwordImageText.getPassword(),
                 captchaText.getText(),
                 code
         );
         if (errorMsg == null) {
             dispose();  // 销毁登录窗口，释放资源
-            new GameFrame();
+            new GameFrame(username);  // 传递用户名到游戏界面
         } else {
             new showDialog(errorMsg);
         }
     }
 
+    // 初始化界面组件
     private void initView() {
-        //添加用户名图片
+        // 添加用户名图片
         usernameImage.setBounds(100, 150, 47, 17);
         getContentPane().add(usernameImage);
 
-        //添加用户名输入框
+        // 添加用户名输入框
         usernameImageText.setBounds(150, 141, 200, 30);
         usernameImageText.enableInputMethods(false);
         getContentPane().add(usernameImageText);
 
-        //添加密码图片
+        // 添加密码图片
         passwordImage.setBounds(110, 215, 32, 16);
         getContentPane().add(passwordImage);
 
-        //添加密码输入框
+        // 添加密码输入框
         passwordImageText.setBounds(150, 211, 200, 30);
         passwordImageText.setEchoChar('●');
         passwordImageText.enableInputMethods(false);
@@ -125,51 +114,46 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         showPasswordButton.addActionListener(this);
         getContentPane().add(showPasswordButton);
 
-        //添加验证码图片
+        // 添加验证码图片
         captcha.setBounds(100, 280, 56, 21);
         getContentPane().add(captcha);
 
-        //添加验证码
+        // 添加验证码按钮
         codeJButton.setText(code);
         codeJButton.addActionListener(this);
         codeJButton.setBounds(280, 272, 100, 30);
-        //去除按钮的默认边框
         codeJButton.setBorderPainted(false);
-        //去除按钮的默认背景
         codeJButton.setContentAreaFilled(false);
-        //去除按钮的焦点
         codeJButton.setFocusPainted(false);
         getContentPane().add(codeJButton);
 
-        //添加验证码输入框
+        // 添加验证码输入框
         captchaText.setBounds(180, 273, 100, 30);
         captchaText.enableInputMethods(false);
         getContentPane().add(captchaText);
 
-        //添加登录按钮
+        // 添加登录按钮
         loginButton.setBounds(120, 330, 128, 47);
-        //去除按钮的默认边框
         loginButton.setBorderPainted(false);
-        //去除按钮的默认背景
         loginButton.setContentAreaFilled(false);
         loginButton.addMouseListener(this);
         getContentPane().add(loginButton);
 
-        //添加注册按钮
+        // 添加注册按钮
         registerButton.setBounds(250, 330, 127, 47);
-        //去除按钮的默认边框
         registerButton.setBorderPainted(false);
-        //去除按钮的默认背景
         registerButton.setContentAreaFilled(false);
         registerButton.addMouseListener(this);
         getContentPane().add(registerButton);
 
+        // 添加背景
         background.setBounds(0, 0, 470, 390);
         getContentPane().add(background);
 
         getContentPane().repaint();
     }
 
+    // 按钮点击事件
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -193,11 +177,13 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         }
     }
 
+    // 鼠标点击事件
     @Override
     public void mouseClicked(MouseEvent e) {
 
     }
 
+    // 鼠标按下事件
     @Override
     public void mousePressed(MouseEvent e) {
         Object source = e.getSource();
@@ -210,6 +196,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         }
     }
 
+    // 鼠标释放事件
     @Override
     public void mouseReleased(MouseEvent e) {
         Object source = e.getSource();
@@ -223,11 +210,13 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         }
     }
 
+    // 鼠标进入事件
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    // 鼠标离开事件
     @Override
     public void mouseExited(MouseEvent e) {
 

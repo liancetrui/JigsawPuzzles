@@ -8,9 +8,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// 用户认证控制器
 public class AuthController {
-    private static ArrayList<User> userList = new ArrayList<>();
+    // 用户列表
+    private static final ArrayList<User> userList = new ArrayList<>();
 
+    // 从文件加载用户数据
     public void loadUsers() {
         List<String> userInfoList = FileUtil.readUtf8Lines("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
         for (String s : userInfoList) {
@@ -22,29 +25,7 @@ public class AuthController {
         }
     }
 
-    public String vipLogin(String username, char[] password) {
-        // 检查用户名是否为空
-        if (username == null || username.trim()
-                .isEmpty()) {
-            return "用户名不能为空";
-        }
-
-        // 检查密码是否为空
-        if (password == null || password.length == 0) {
-            return "密码不能为空";
-        }
-
-        // 遍历用户列表查找匹配的账号
-        for (User user : userList) {
-            if (username.equals(user.getUsername())
-                    && Arrays.equals(password, user.getPassword()
-                    .toCharArray())) {
-                return null; // 登录成功
-            }
-        }
-        return "用户名或密码错误";
-    }
-
+    // 验证登录
     public String validateLogin(String username, char[] password, String captcha, String actualCode) {
         // 检查用户名是否为空
         if (username == null || username.trim()
@@ -79,10 +60,12 @@ public class AuthController {
         return "用户名或密码错误";
     }
 
+    // 生成验证码
     public String generateCaptcha() {
         return GetCode.getCode();
     }
 
+    // 检查用户名是否已存在
     public boolean userExists(String usernameText) {
         for (User user : userList) {
             if (usernameText.equals(user.getUsername())) {
@@ -92,9 +75,10 @@ public class AuthController {
         return false;
     }
 
+    // 注册新用户
     public void registerUser(String userName, String passWord) {
         User user = new User(userName, passWord);
         userList.add(user);
-        FileUtil.appendUtf8Lines(List.of("username" + "=" + userName + "&" + "password" + "=" + passWord), "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
+        FileUtil.appendUtf8Lines(List.of(user.toString()), "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
     }
 }

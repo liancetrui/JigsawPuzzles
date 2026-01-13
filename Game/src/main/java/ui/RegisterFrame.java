@@ -1,80 +1,93 @@
 package ui;
 
 import controller.AuthController;
-import model.User;
 import util.ResourcePathUtil;
 
 import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.net.URL;
 
+// 注册界面
 public class RegisterFrame extends JFrame implements MouseListener {
+    // 认证控制器
     private static AuthController authController = new AuthController();
 
-    //提升三个输入框的变量的作用范围，让这三个变量可以在本类中所有方法里面可以使用。
+    // 输入框
     JTextField username = new JTextField();
     JTextField password = new JTextField();
     JTextField rePassword = new JTextField();
 
-    //提升两个按钮变量的作用范围，让这两个变量可以在本类中所有方法里面可以使用。
+    // 按钮
     JButton submit = new JButton();
     JButton reset = new JButton();
 
-
+    // 构造方法
     public RegisterFrame() {
         initFrame();
         initView();
         setVisible(true);
     }
 
+    // 注册新用户
     private String registerNewUser() {
+        // 检查用户名是否为空
         if (username.getText()
                 .isEmpty()) {
             return "用户名不能为空";
         }
-        //用户名可以是字母、数字、下划线，长度3-16 个字符，必须以字母开头（不能数字或下划线开头）
+        // 检查用户名长度
         String usernameText = username.getText();
         if (usernameText.length() < 3 || usernameText.length() > 16) {
             return "用户名长度必须在3-16个字符之间";
         }
+        // 检查用户名开头
         if (!Character.isLetter(usernameText.charAt(0))) {
             return "用户名必须以字母开头";
         }
+        // 检查用户名格式
         if (!usernameText.matches("^[a-zA-Z0-9_]+$")) {
             return "用户名只能包含字母、数字、下划线";
         }
+        // 检查密码是否为空
         if (password.getText()
                 .isEmpty()) {
             return "密码不能为空";
         }
-        // 8-16位，必须包含字母和数字
+        // 检查密码长度
         if (password.getText()
                 .length() < 8 || password.getText()
                 .length() > 16) {
             return "密码长度必须在8-16位之间";
         }
+        // 检查密码格式
         if (!password.getText()
                 .matches(".*[a-zA-Z].*") || !password.getText()
                 .matches(".*\\d.*")) {
             return "密码必须包含字母和数字";
         }
+        // 检查两次密码是否一致
         if (!password.getText()
                 .equals(rePassword.getText())) {
             return "两次输入的密码不一致";
         }
-        //判断用户名是否已经存在
+        // 检查用户名是否已存在
         if (authController.userExists(username.getText())) {
             return "用户名已存在";
         }
+        // 注册用户
         authController.registerUser(username.getText(), rePassword.getText());
         return "注册成功";
     }
 
+    // 获取资源URL
     private URL getResourceUrl(String path) {
         return ResourcePathUtil.getResourceUrl(path);
     }
 
+    // 鼠标点击事件
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == submit) {
@@ -82,6 +95,7 @@ public class RegisterFrame extends JFrame implements MouseListener {
         }
     }
 
+    // 鼠标按下事件
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getSource() == submit) {
@@ -91,6 +105,7 @@ public class RegisterFrame extends JFrame implements MouseListener {
         }
     }
 
+    // 鼠标释放事件
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getSource() == submit) {
@@ -110,98 +125,96 @@ public class RegisterFrame extends JFrame implements MouseListener {
         }
     }
 
+    // 鼠标进入事件
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    // 鼠标离开事件
     @Override
     public void mouseExited(MouseEvent e) {
 
     }
 
+    // 初始化界面组件
     private void initView() {
-        //添加注册用户名的文本
+        // 添加用户名标签
         JLabel usernameText = new JLabel(new ImageIcon(getResourceUrl("image/register/注册用户名.png")));
         usernameText.setBounds(85, 135, 80, 20);
 
-        //添加注册用户名的输入框
+        // 添加用户名输入框
         username.setBounds(195, 134, 200, 30);
 
-        //添加注册密码的文本
+        // 添加密码标签
         JLabel passwordText = new JLabel(new ImageIcon(getResourceUrl("image/register/注册密码.png")));
         passwordText.setBounds(97, 193, 70, 20);
 
-        //添加密码输入框
+        // 添加密码输入框
         password.setBounds(195, 195, 200, 30);
 
-        //添加再次输入密码的文本
+        // 添加确认密码标签
         JLabel rePasswordText = new JLabel(new ImageIcon(getResourceUrl("image/register/再次输入密码.png")));
         rePasswordText.setBounds(64, 255, 95, 20);
 
-        //添加再次输入密码的输入框
+        // 添加确认密码输入框
         rePassword.setBounds(195, 255, 200, 30);
 
-        //注册的按钮
+        // 注册按钮
         submit.setIcon(new ImageIcon(getResourceUrl("image/register/注册按钮.png")));
         submit.setBounds(123, 310, 128, 47);
         submit.setBorderPainted(false);
         submit.setContentAreaFilled(false);
         submit.addMouseListener(this);
 
-        //重置的按钮
+        // 重置按钮
         reset.setIcon(new ImageIcon(getResourceUrl("image/register/重置按钮.png")));
         reset.setBounds(256, 310, 128, 47);
         reset.setBorderPainted(false);
         reset.setContentAreaFilled(false);
         reset.addMouseListener(this);
 
-        //禁止中文输入
+        // 禁止中文输入
         username.enableInputMethods(false);
         password.enableInputMethods(false);
         rePassword.enableInputMethods(false);
 
-        //禁止复制粘贴
+        // 禁止复制粘贴
         username.setTransferHandler(null);
         password.setTransferHandler(null);
         rePassword.setTransferHandler(null);
 
-        //背景图片
+        // 背景图片
         JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/register/background.png")));
         background.setBounds(0, 0, 470, 390);
 
-        this.getContentPane()
-                .add(usernameText);
-        this.getContentPane()
-                .add(passwordText);
-        this.getContentPane()
-                .add(rePasswordText);
-        this.getContentPane()
-                .add(username);
-        this.getContentPane()
-                .add(password);
-        this.getContentPane()
-                .add(rePassword);
-        this.getContentPane()
-                .add(submit);
-        this.getContentPane()
-                .add(reset);
-        this.getContentPane()
-                .add(background);
+        // 添加组件
+        this.getContentPane().add(usernameText);
+        this.getContentPane().add(passwordText);
+        this.getContentPane().add(rePasswordText);
+        this.getContentPane().add(username);
+        this.getContentPane().add(password);
+        this.getContentPane().add(rePassword);
+        this.getContentPane().add(submit);
+        this.getContentPane().add(reset);
+        this.getContentPane().add(background);
     }
 
+    // 初始化窗口
     private void initFrame() {
-        //设置宽高
         setSize(488, 430);
-        //设置标题
         setTitle("拼图游戏 V1.0注册");
-        //取消内部默认布局
         setLayout(null);
-        //设置关闭模式
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        //设置居中
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        // 窗口关闭监听
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                dispose();
+                new LoginFrame();
+            }
+        });
         setLocationRelativeTo(null);
-        //设置置顶
         setAlwaysOnTop(true);
     }
 }
