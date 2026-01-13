@@ -11,7 +11,7 @@ import java.awt.event.WindowEvent;
 import java.net.URL;
 
 // 注册界面
-public class RegisterFrame extends JFrame implements MouseListener {
+public class RegisterFrame extends BaseFrame implements MouseListener {
     // 认证控制器
     private static AuthController authController = new AuthController();
 
@@ -189,23 +189,29 @@ public class RegisterFrame extends JFrame implements MouseListener {
         background.setBounds(0, 0, 470, 390);
 
         // 添加组件
-        this.getContentPane().add(usernameText);
-        this.getContentPane().add(passwordText);
-        this.getContentPane().add(rePasswordText);
-        this.getContentPane().add(username);
-        this.getContentPane().add(password);
-        this.getContentPane().add(rePassword);
-        this.getContentPane().add(submit);
-        this.getContentPane().add(reset);
-        this.getContentPane().add(background);
+        this.getContentPane()
+                .add(usernameText);
+        this.getContentPane()
+                .add(passwordText);
+        this.getContentPane()
+                .add(rePasswordText);
+        this.getContentPane()
+                .add(username);
+        this.getContentPane()
+                .add(password);
+        this.getContentPane()
+                .add(rePassword);
+        this.getContentPane()
+                .add(submit);
+        this.getContentPane()
+                .add(reset);
+        this.getContentPane()
+                .add(background);
     }
 
     // 初始化窗口
     private void initFrame() {
-        setSize(488, 430);
-        setTitle("拼图游戏 V1.0注册");
-        setLayout(null);
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        super.initJFrame(488, 430, "拼图游戏 V1.0注册", WindowConstants.DO_NOTHING_ON_CLOSE);
         // 窗口关闭监听
         addWindowListener(new WindowAdapter() {
             @Override
@@ -214,7 +220,5 @@ public class RegisterFrame extends JFrame implements MouseListener {
                 new LoginFrame();
             }
         });
-        setLocationRelativeTo(null);
-        setAlwaysOnTop(true);
     }
 }

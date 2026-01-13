@@ -11,7 +11,7 @@ import java.awt.event.MouseListener;
 import java.net.URL;
 
 // 登录界面
-public class LoginFrame extends JFrame implements ActionListener, MouseListener {
+public class LoginFrame extends BaseFrame implements ActionListener, MouseListener {
     // 认证控制器
     private AuthController authController = new AuthController();
 
@@ -54,13 +54,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
 
     // 初始化窗口
     private void initJFrame() {
-        setSize(488, 430);
-        setTitle("拼图游戏 登录界面");
-        setAlwaysOnTop(true);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setResizable(false);
-        setLayout(null);
+        super.initJFrame(488, 430, "拼图游戏 登录界面");
     }
 
     // 获取资源URL

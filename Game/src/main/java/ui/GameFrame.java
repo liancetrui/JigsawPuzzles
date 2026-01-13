@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Random;
 
 // 游戏主界面
-public class GameFrame extends JFrame implements KeyListener, ActionListener {
+public class GameFrame extends BaseFrame implements KeyListener, ActionListener {
     // 拼图块尺寸
     public static final int LENGTH = 105;
 
@@ -113,14 +113,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
     // 初始化窗口
     private void initJFrame() {
-        setSize(603, 680);
-        setTitle("拼图游戏 v1.0");
-        setAlwaysOnTop(true);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLayout(null);
+        super.initJFrame(603, 680, "拼图游戏 v1.0");
         addKeyListener(this);
-        setResizable(false);
         enableInputMethods(false);
     }
 
@@ -281,18 +275,20 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                 JLabel jLabel = new JLabel(imageCache[num / 4][num % 4]);
                 jLabel.setBounds(LENGTH * j + 84, LENGTH * i + 134, LENGTH, LENGTH);
                 jLabel.setBorder(BorderFactory.createLineBorder(Color.black));
-                
+
                 // 点击事件
                 final int row = i;
                 final int col = j;
                 jLabel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mousePressed(MouseEvent e) {
-                        if (win()) return;
+                        if (win()) {
+                            return;
+                        }
                         clickPuzzle(row, col);
                     }
                 });
-                
+
                 getContentPane().add(jLabel);
             }
         }
@@ -303,7 +299,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         // 刷新
         getContentPane().repaint();
     }
-    
+
     // 点击拼图块与空白块交换
     private void clickPuzzle(int row, int col) {
         // 判断是否相邻
@@ -526,15 +522,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
         } else if (source == accountItem) {
             // 关于我们
-            JDialog jDialog = new JDialog();
-            jDialog.setTitle("公众号");
-            about.setBounds(0, 0, 258, 258);
-            jDialog.setSize(344, 344);
-            jDialog.setAlwaysOnTop(true);
-            jDialog.setLocationRelativeTo(null);
-            jDialog.setModal(true);
-            jDialog.getContentPane().add(about);
-            jDialog.setVisible(true);
+            new showDialog("公众号", about);
         }
 
     }
