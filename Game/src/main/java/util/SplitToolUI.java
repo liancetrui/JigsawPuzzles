@@ -65,7 +65,7 @@ public class SplitToolUI extends JFrame {
         destLabel.setBounds(20, 55, 60, 25);
         add(destLabel);
 
-        destPathField = new JTextField("D:\\java\\JigsawPuzzles\\Game\\src\\main\\resources\\image");
+        destPathField = new JTextField(ConfigUtil.getImageDir());
         destPathField.setBounds(80, 55, 400, 25);
         destPathField.setEditable(false);
         add(destPathField);

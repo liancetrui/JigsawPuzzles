@@ -5,10 +5,11 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONUtil;
 import model.User;
+import util.ConfigUtil;
 import util.GetCode;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 // 用户认证控制器
 public class AuthController {
@@ -17,21 +18,16 @@ public class AuthController {
 
     // 从文件加载用户数据
     public void loadUsers() {
+        String userInfoPath = ConfigUtil.getUserInfoPath();
         // JSON格式
-        String json = FileUtil.readUtf8String("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.json");
+        if (FileUtil.isEmpty(new File(userInfoPath))) {
+            FileUtil.touch(userInfoPath);
+        }
+        String json = FileUtil.readUtf8String(userInfoPath);
+
         if (StrUtil.isNotBlank(json)) {
             userList.addAll(JSONUtil.toList(json, User.class));
         }
-        
-        // 旧版本文本格式（注释保留）
-//        List<String> userInfoList = FileUtil.readUtf8Lines("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
-//        for (String s : userInfoList) {
-//            String[] split = s.split("&");
-//            String username = split[0].split("=")[1];
-//            String password = split[1].split("=")[1];
-//            User user = new User(username, password);
-//            userList.add(user);
-//        }
     }
 
     // 验证登录
@@ -92,7 +88,7 @@ public class AuthController {
         // 保存为JSON格式
         FileUtil.writeUtf8String(
             JSONUtil.toJsonPrettyStr(userList),
-            "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.json"
+            ConfigUtil.getUserInfoPath()
         );
     }
 }

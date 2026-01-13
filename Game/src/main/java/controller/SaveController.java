@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import model.GameSave;
+import util.ConfigUtil;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -11,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 
 // 存档控制器
 public class SaveController {
-    // 存档目录
-    private static final String SAVE_DIR = "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\save\\";
 
     // 保存游戏
     public static boolean saveGame(String username, int gridSize, int[][] puzzleState, 
@@ -25,7 +24,7 @@ public class SaveController {
                                          stepCount, imagePath, imageNum, saveTime);
             
             // 保存为JSON文件（按用户名命名）
-            String filePath = SAVE_DIR + username + ".json";
+            String filePath = ConfigUtil.getSaveDir() + File.separator + username + ".json";
             FileUtil.writeUtf8String(JSONUtil.toJsonPrettyStr(save), filePath);
             return true;
         } catch (Exception e) {
@@ -37,7 +36,7 @@ public class SaveController {
     // 读取存档
     public static GameSave loadGame(String username) {
         try {
-            String filePath = SAVE_DIR + username + ".json";
+            String filePath = ConfigUtil.getSaveDir() + File.separator + username + ".json";
             File file = new File(filePath);
             if (!file.exists()) {
                 return null;
@@ -55,14 +54,14 @@ public class SaveController {
 
     // 检查是否有存档
     public static boolean hasSave(String username) {
-        String filePath = SAVE_DIR + username + ".json";
+        String filePath = ConfigUtil.getSaveDir() + File.separator + username + ".json";
         return new File(filePath).exists();
     }
 
     // 删除存档
     public static boolean deleteSave(String username) {
         try {
-            String filePath = SAVE_DIR + username + ".json";
+            String filePath = ConfigUtil.getSaveDir() + File.separator + username + ".json";
             return FileUtil.del(filePath);
         } catch (Exception e) {
             return false;
