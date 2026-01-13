@@ -82,4 +82,19 @@ public class AuthController {
     public String generateCaptcha() {
         return GetCode.getCode();
     }
+
+    public boolean userExists(String usernameText) {
+        for (User user : userList) {
+            if (usernameText.equals(user.getUsername())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void registerUser(String userName, String passWord) {
+        User user = new User(userName, passWord);
+        userList.add(user);
+        FileUtil.appendUtf8Lines(List.of("username" + "=" + userName + "&" + "password" + "=" + passWord), "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
+    }
 }

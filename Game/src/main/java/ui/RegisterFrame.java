@@ -1,5 +1,7 @@
 package ui;
 
+import controller.AuthController;
+import model.User;
 import util.ResourcePathUtil;
 
 import javax.swing.*;
@@ -8,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.net.URL;
 
 public class RegisterFrame extends JFrame implements MouseListener {
+    private static AuthController authController = new AuthController();
 
     //提升三个输入框的变量的作用范围，让这三个变量可以在本类中所有方法里面可以使用。
     JTextField username = new JTextField();
@@ -60,8 +63,12 @@ public class RegisterFrame extends JFrame implements MouseListener {
                 .equals(rePassword.getText())) {
             return "两次输入的密码不一致";
         }
-
-        return null;
+        //判断用户名是否已经存在
+        if (authController.userExists(username.getText())) {
+            return "用户名已存在";
+        }
+        authController.registerUser(username.getText(), rePassword.getText());
+        return "注册成功";
     }
 
     private URL getResourceUrl(String path) {
@@ -89,8 +96,10 @@ public class RegisterFrame extends JFrame implements MouseListener {
         if (e.getSource() == submit) {
             submit.setIcon(new ImageIcon(getResourceUrl("image/register/注册按钮.png")));
             String result = registerNewUser();
-            if (result != null) {
-                new showDialog(result);
+            new showDialog(result);
+            if (result.equals("注册成功")) {
+                new LoginFrame();
+                dispose();
             }
         } else if (e.getSource() == reset) {
             reset.setIcon(new ImageIcon(getResourceUrl("image/register/重置按钮.png")));
@@ -151,6 +160,11 @@ public class RegisterFrame extends JFrame implements MouseListener {
         username.enableInputMethods(false);
         password.enableInputMethods(false);
         rePassword.enableInputMethods(false);
+
+        //禁止复制粘贴
+        username.setTransferHandler(null);
+        password.setTransferHandler(null);
+        rePassword.setTransferHandler(null);
 
         //背景图片
         JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/register/background.png")));
