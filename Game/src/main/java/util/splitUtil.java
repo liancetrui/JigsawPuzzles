@@ -12,43 +12,53 @@ import java.util.Iterator;
 
 // 图片拆分工具类
 public class splitUtil {
-    // 拼图块尺寸
-    private static final int SPLIT_SIZE = 105;
-    // 完整图片尺寸
-    private static final int FULL_SIZE = SPLIT_SIZE * 4;
+    // 难度配置：格数 -> 块尺寸
+    private static final int[][] DIFFICULTY_CONFIG = {
+        {2, 210},  // 2x2 非常简单
+        {3, 140},  // 3x3 轻松
+        {4, 105},  // 4x4 难
+        {5, 84}    // 5x5 非常困难
+    };
 
-    // 主方法
-    public static void main(String[] args) throws IOException {
-        splitImage("C:\\Users\\Narylr\\Pictures\\anan.jpg", "D:\\java\\JigsawPuzzles\\Game\\src\\main\\resources\\image\\person\\person1");
-        splitImage("C:\\Users\\Narylr\\Pictures\\jiejie.jpg", "D:\\java\\JigsawPuzzles\\Game\\src\\main\\resources\\image\\person\\person2");
+    // 为所有难度切分图片
+    public static void splitImageForAllDifficulties(String srcImagePath, String baseDestPath) throws IOException {
+        for (int[] config : DIFFICULTY_CONFIG) {
+            int gridSize = config[0];
+            int pieceSize = config[1];
+            // 目录格式：animal1/4x4/
+            String destPath = baseDestPath + "/" + gridSize + "x" + gridSize;
+            splitImage(srcImagePath, destPath, gridSize, pieceSize);
+            System.out.println("完成 " + gridSize + "x" + gridSize + " 难度的图片切分");
+        }
     }
 
-    // 拆分图片
-    public static void splitImage(String srcImagePath, String destImagePath) throws IOException {
+    // 拆分图片（指定难度）
+    public static void splitImage(String srcImagePath, String destImagePath, int gridSize, int pieceSize) throws IOException {
+        int fullSize = pieceSize * gridSize;
         // 获取原图
         BufferedImage original = ImageIO.read(new File(srcImagePath));
 
-        // 创建420x420的新图
-        BufferedImage resized = new BufferedImage(FULL_SIZE, FULL_SIZE, BufferedImage.TYPE_INT_RGB);
+        // 创建方形图片
+        BufferedImage resized = new BufferedImage(fullSize, fullSize, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = resized.createGraphics();
         // 高质量渲染
         graphics2D.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.drawImage(original, 0, 0, FULL_SIZE, FULL_SIZE, null);
+        graphics2D.drawImage(original, 0, 0, fullSize, fullSize, null);
         graphics2D.dispose();
         // 创建目录
         new File(destImagePath).mkdirs();
 
         // 拆图片
         int num = 1;
-        for (int row = 0; row < 4; row++) {
-            for (int col = 0; col < 4; col++) {
+        for (int row = 0; row < gridSize; row++) {
+            for (int col = 0; col < gridSize; col++) {
                 BufferedImage piece = resized.getSubimage(
-                        col * SPLIT_SIZE,
-                        row * SPLIT_SIZE,
-                        SPLIT_SIZE,
-                        SPLIT_SIZE
+                        col * pieceSize,
+                        row * pieceSize,
+                        pieceSize,
+                        pieceSize
                 );
                 writeHighQualityJPG(piece, new File(destImagePath + "/" + num + ".jpg"));
                 num++;
@@ -57,7 +67,6 @@ public class splitUtil {
 
         // 保存完整图片
         writeHighQualityJPG(resized, new File(destImagePath + "/all.jpg"));
-        System.out.println("图片处理完毕");
     }
 
     // 高质量保存JPG

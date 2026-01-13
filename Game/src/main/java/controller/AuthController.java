@@ -1,11 +1,13 @@
 package controller;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.json.JSONUtil;
 import model.User;
 import util.GetCode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 // 用户认证控制器
@@ -15,21 +17,27 @@ public class AuthController {
 
     // 从文件加载用户数据
     public void loadUsers() {
-        List<String> userInfoList = FileUtil.readUtf8Lines("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
-        for (String s : userInfoList) {
-            String[] split = s.split("&");
-            String username = split[0].split("=")[1];
-            String password = split[1].split("=")[1];
-            User user = new User(username, password);
-            userList.add(user);
+        // JSON格式
+        String json = FileUtil.readUtf8String("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.json");
+        if (StrUtil.isNotBlank(json)) {
+            userList.addAll(JSONUtil.toList(json, User.class));
         }
+        
+        // 旧版本文本格式（注释保留）
+//        List<String> userInfoList = FileUtil.readUtf8Lines("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
+//        for (String s : userInfoList) {
+//            String[] split = s.split("&");
+//            String username = split[0].split("=")[1];
+//            String password = split[1].split("=")[1];
+//            User user = new User(username, password);
+//            userList.add(user);
+//        }
     }
 
     // 验证登录
     public String validateLogin(String username, char[] password, String captcha, String actualCode) {
         // 检查用户名是否为空
-        if (username == null || username.trim()
-                .isEmpty()) {
+        if (username == null || username.trim().isEmpty()) {
             return "用户名不能为空";
         }
 
@@ -39,8 +47,7 @@ public class AuthController {
         }
 
         // 检查验证码是否为空
-        if (captcha == null || captcha.trim()
-                .isEmpty()) {
+        if (captcha == null || captcha.trim().isEmpty()) {
             return "验证码不能为空";
         }
 
@@ -49,11 +56,12 @@ public class AuthController {
             return "验证码错误";
         }
 
+        // 加密输入的密码
+        String encryptedPassword = SecureUtil.md5(new String(password));
+
         // 遍历用户列表查找匹配的账号
         for (User user : userList) {
-            if (username.equals(user.getUsername())
-                    && Arrays.equals(password, user.getPassword()
-                    .toCharArray())) {
+            if (username.equals(user.getUsername()) && encryptedPassword.equals(user.getPassword())) {
                 return null; // 登录成功
             }
         }
@@ -77,8 +85,14 @@ public class AuthController {
 
     // 注册新用户
     public void registerUser(String userName, String passWord) {
-        User user = new User(userName, passWord);
+        // 加密密码
+        String encryptedPassword = SecureUtil.md5(passWord);
+        User user = new User(userName, encryptedPassword);
         userList.add(user);
-        FileUtil.appendUtf8Lines(List.of(user.toString()), "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
+        // 保存为JSON格式
+        FileUtil.writeUtf8String(
+            JSONUtil.toJsonPrettyStr(userList),
+            "D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.json"
+        );
     }
 }

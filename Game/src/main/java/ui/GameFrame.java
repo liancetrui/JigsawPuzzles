@@ -1,5 +1,7 @@
 package ui;
 
+import controller.SaveController;
+import model.GameSave;
 import util.ImageUtil;
 import util.ResourcePathUtil;
 
@@ -19,30 +21,33 @@ import java.util.Random;
 
 // 游戏主界面
 public class GameFrame extends BaseFrame implements KeyListener, ActionListener {
-    // 拼图块尺寸
-    public static final int LENGTH = 105;
+    // 难度配置：网格大小 -> 块尺寸
+    private static final int[][] DIFFICULTY_CONFIG = {
+        {2, 210},  // 2x2 非常简单
+        {3, 140},  // 3x3 轻松
+        {4, 105},  // 4x4 难
+        {5, 84}    // 5x5 非常困难
+    };
+
+    // 当前难度
+    private int gridSize = 4;      // 网格大小
+    private int pieceSize = 105;   // 拼图块尺寸
 
     // VIP用户名
     private String currentUsername;
     private static final String VIP_USERNAME = "Narylr";
 
-    // 拼图数据
-    int[] arr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-    int[][] newArr = new int[4][4];
-    // 目标状态
-    int[][] finalArr = {
-            {1, 2, 3, 4},
-            {5, 6, 7, 8},
-            {9, 10, 11, 12},
-            {13, 14, 15, 0}
-    };
+    // 拼图数据（动态数组）
+    private int[] arr;
+    private int[][] newArr;
+    private int[][] finalArr;
 
     // 空白位置
-    int x = 0;
-    int y = 0;
+    private int emptyX = 0;
+    private int emptyY = 0;
 
-    // 图片缓存
-    private ImageIcon[][] imageCache = new ImageIcon[4][4];
+    // 图片缓存（动态大小）
+    private ImageIcon[][] imageCache;
     private ImageIcon allImageCache = null;
 
     // 步数
@@ -81,6 +86,17 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
     JMenuItem closeItem = new JMenuItem("关闭游戏");
     JMenuItem accountItem = new JMenuItem("公众号");
 
+    // 难度菜单
+    JMenu difficultyMenu = new JMenu("难度选择");
+    JMenuItem diff2x2 = new JMenuItem("2x2 非常简单");
+    JMenuItem diff3x3 = new JMenuItem("3x3 轻松");
+    JMenuItem diff4x4 = new JMenuItem("4x4 难");
+    JMenuItem diff5x5 = new JMenuItem("5x5 非常困难");
+
+    // 存档读档菜单
+    JMenuItem saveItem = new JMenuItem("保存进度");
+    JMenuItem loadItem = new JMenuItem("读取存档");
+
     // 随机图片编号
     int randomNum = 1;
 
@@ -102,6 +118,7 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
     // 带用户名的构造方法
     public GameFrame(String username) {
         this.currentUsername = username;
+        initArrays();
         initRandomImageNumbers();
         initJFrame();
         initJMenuBar();
@@ -109,6 +126,26 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
         loadImageCache();
         initImage();
         setVisible(true);
+    }
+
+    // 初始化动态数组
+    private void initArrays() {
+        int total = gridSize * gridSize;
+        arr = new int[total];
+        newArr = new int[gridSize][gridSize];
+        finalArr = new int[gridSize][gridSize];
+        imageCache = new ImageIcon[gridSize][gridSize];
+        // 初始化目标状态
+        int num = 1;
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
+                if (i == gridSize - 1 && j == gridSize - 1) {
+                    finalArr[i][j] = 0;
+                } else {
+                    finalArr[i][j] = num++;
+                }
+            }
+        }
     }
 
     // 初始化窗口
@@ -208,10 +245,10 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
             // 转换为二维数组
             for (int i = 0; i < arr.length; i++) {
                 if (arr[i] == 0) {
-                    x = i / 4;
-                    y = i % 4;
+                    emptyX = i / gridSize;
+                    emptyY = i % gridSize;
                 }
-                newArr[i / 4][i % 4] = arr[i];
+                newArr[i / gridSize][i % gridSize] = arr[i];
             }
         } while (!isSolvable());
     }
@@ -234,26 +271,35 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
             }
         }
         // 空白块所在行
-        int blankRowFromBottom = 4 - x;
+        int blankRowFromBottom = gridSize - emptyX;
         // 可解条件
-        return (inversions + blankRowFromBottom) % 2 == 0;
+        if (gridSize % 2 == 1) {
+            // 奇数网格：逆序数必须为偶数
+            return inversions % 2 == 0;
+        } else {
+            // 偶数网格：逆序数+空白块从底部数的行数必须为奇数
+            return (inversions + blankRowFromBottom) % 2 == 1;
+        }
     }
 
     // 加载并缓存图片
     private void loadImageCache() {
         // 创建默认白色图片
         ImageIcon defaultImage = ImageUtil.createDefaultPuzzleImage();
+        int total = gridSize * gridSize;
+        // 图片路径格式：image/animal/animal1/4x4/
+        String difficultyPath = path + randomNum + "/" + gridSize + "x" + gridSize + "/";
 
-        for (int num = 0; num <= 15; num++) {
-            URL imageUrl = getResourceUrl(path + randomNum + "/" + num + ".jpg");
+        for (int num = 0; num < total; num++) {
+            URL imageUrl = getResourceUrl(difficultyPath + num + ".jpg");
             if (imageUrl != null) {
-                imageCache[num / 4][num % 4] = new ImageIcon(imageUrl);
+                imageCache[num / gridSize][num % gridSize] = new ImageIcon(imageUrl);
             } else {
-                imageCache[num / 4][num % 4] = defaultImage;
+                imageCache[num / gridSize][num % gridSize] = defaultImage;
             }
         }
 
-        URL allImageUrl = getResourceUrl(path + randomNum + "/" + "all.jpg");
+        URL allImageUrl = getResourceUrl(difficultyPath + "all.jpg");
         if (allImageUrl != null) {
             allImageCache = new ImageIcon(allImageUrl);
         } else {
@@ -263,17 +309,22 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
 
     // 初始化拼图界面
     private void initImage() {
+        // 计算居中偏移
+        int totalSize = gridSize * pieceSize;
+        int offsetX = (420 - totalSize) / 2 + 84;
+        int offsetY = (420 - totalSize) / 2 + 134;
+        
         // 清空界面
         getContentPane().removeAll();
         if (win()) {
             initWin();
         }
         // 添加拼图块
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < gridSize; i++) {
+            for (int j = 0; j < gridSize; j++) {
                 int num = newArr[i][j];
-                JLabel jLabel = new JLabel(imageCache[num / 4][num % 4]);
-                jLabel.setBounds(LENGTH * j + 84, LENGTH * i + 134, LENGTH, LENGTH);
+                JLabel jLabel = new JLabel(imageCache[num / gridSize][num % gridSize]);
+                jLabel.setBounds(pieceSize * j + offsetX, pieceSize * i + offsetY, pieceSize, pieceSize);
                 jLabel.setBorder(BorderFactory.createLineBorder(Color.black));
 
                 // 点击事件
@@ -303,12 +354,12 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
     // 点击拼图块与空白块交换
     private void clickPuzzle(int row, int col) {
         // 判断是否相邻
-        if ((Math.abs(row - x) == 1 && col == y) || (Math.abs(col - y) == 1 && row == x)) {
+        if ((Math.abs(row - emptyX) == 1 && col == emptyY) || (Math.abs(col - emptyY) == 1 && row == emptyX)) {
             // 交换
-            newArr[x][y] = newArr[row][col];
+            newArr[emptyX][emptyY] = newArr[row][col];
             newArr[row][col] = 0;
-            x = row;
-            y = col;
+            emptyX = row;
+            emptyY = col;
             stepCount++;
             initImage();
         }
@@ -342,8 +393,17 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
         changeImage.add(sport);
         changeImage.add(person);
 
+        // 添加难度选项
+        difficultyMenu.add(diff2x2);
+        difficultyMenu.add(diff3x3);
+        difficultyMenu.add(diff4x4);
+        difficultyMenu.add(diff5x5);
+
         // 添加菜单条目
         funcJMenu.add(changeImage);
+        funcJMenu.add(difficultyMenu);
+        funcJMenu.add(saveItem);
+        funcJMenu.add(loadItem);
         funcJMenu.add(replayItem);
         funcJMenu.add(reLoginItem);
         funcJMenu.add(closeItem);
@@ -359,6 +419,14 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
         animal.addActionListener(this);
         sport.addActionListener(this);
         person.addActionListener(this);
+
+        diff2x2.addActionListener(this);
+        diff3x3.addActionListener(this);
+        diff4x4.addActionListener(this);
+        diff5x5.addActionListener(this);
+
+        saveItem.addActionListener(this);
+        loadItem.addActionListener(this);
 
         replayItem.addActionListener(this);
         reLoginItem.addActionListener(this);
@@ -415,40 +483,40 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
         switch (keyCode) {
             case 37 -> {
                 // 左
-                if (y < 3) {
-                    newArr[x][y] = newArr[x][y + 1];
-                    newArr[x][y + 1] = 0;
-                    y++;
+                if (emptyY < gridSize - 1) {
+                    newArr[emptyX][emptyY] = newArr[emptyX][emptyY + 1];
+                    newArr[emptyX][emptyY + 1] = 0;
+                    emptyY++;
                     stepCount++;
                     initImage();
                 }
             }
             case 38 -> {
                 // 上
-                if (x < 3) {
-                    newArr[x][y] = newArr[x + 1][y];
-                    newArr[x + 1][y] = 0;
-                    x++;
+                if (emptyX < gridSize - 1) {
+                    newArr[emptyX][emptyY] = newArr[emptyX + 1][emptyY];
+                    newArr[emptyX + 1][emptyY] = 0;
+                    emptyX++;
                     stepCount++;
                     initImage();
                 }
             }
             case 39 -> {
                 // 右
-                if (y > 0) {
-                    newArr[x][y] = newArr[x][y - 1];
-                    newArr[x][y - 1] = 0;
-                    y--;
+                if (emptyY > 0) {
+                    newArr[emptyX][emptyY] = newArr[emptyX][emptyY - 1];
+                    newArr[emptyX][emptyY - 1] = 0;
+                    emptyY--;
                     stepCount++;
                     initImage();
                 }
             }
             case 40 -> {
                 // 下
-                if (x > 0) {
-                    newArr[x][y] = newArr[x - 1][y];
-                    newArr[x - 1][y] = 0;
-                    x--;
+                if (emptyX > 0) {
+                    newArr[emptyX][emptyY] = newArr[emptyX - 1][emptyY];
+                    newArr[emptyX - 1][emptyY] = 0;
+                    emptyX--;
                     stepCount++;
                     initImage();
                 }
@@ -461,8 +529,8 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
                     for (int i = 0; i < newArr.length; i++) {
                         System.arraycopy(finalArr[i], 0, newArr[i], 0, newArr[i].length);
                     }
-                    x = 3;
-                    y = 3;
+                    emptyX = gridSize - 1;
+                    emptyY = gridSize - 1;
                     initImage();
                 }
             }
@@ -473,6 +541,17 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+
+        // 难度切换
+        if (source == diff2x2) {
+            changeDifficulty(2, 210);
+        } else if (source == diff3x3) {
+            changeDifficulty(3, 140);
+        } else if (source == diff4x4) {
+            changeDifficulty(4, 105);
+        } else if (source == diff5x5) {
+            changeDifficulty(5, 84);
+        }
 
         // 更换图片
         if (source == animal) {
@@ -523,7 +602,82 @@ public class GameFrame extends BaseFrame implements KeyListener, ActionListener 
         } else if (source == accountItem) {
             // 关于我们
             new showDialog("公众号", about);
+        } else if (source == saveItem) {
+            // 保存进度
+            saveGame();
+        } else if (source == loadItem) {
+            // 读取存档
+            loadGame();
         }
 
+    }
+
+    // 保存游戏
+    private void saveGame() {
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            new showDialog("未登录，无法保存");
+            return;
+        }
+        boolean success = SaveController.saveGame(currentUsername, gridSize, newArr, 
+                                                   emptyX, emptyY, stepCount, path, randomNum);
+        if (success) {
+            new showDialog("保存成功！");
+        } else {
+            new showDialog("保存失败");
+        }
+    }
+
+    // 读取存档
+    private void loadGame() {
+        if (currentUsername == null || currentUsername.isEmpty()) {
+            new showDialog("未登录，无法读取");
+            return;
+        }
+        GameSave save = SaveController.loadGame(currentUsername);
+        if (save == null) {
+            new showDialog("没有找到存档");
+            return;
+        }
+        // 恢复游戏状态
+        gridSize = save.getGridSize();
+        pieceSize = getPieceSize(gridSize);
+        initArrays();
+        // 恢复拼图状态
+        int[][] savedState = save.getPuzzleState();
+        for (int i = 0; i < gridSize; i++) {
+            System.arraycopy(savedState[i], 0, newArr[i], 0, gridSize);
+        }
+        emptyX = save.getEmptyX();
+        emptyY = save.getEmptyY();
+        stepCount = save.getStepCount();
+        path = save.getImagePath();
+        randomNum = save.getImageNum();
+        // 重新加载图片并刷新界面
+        loadImageCache();
+        initImage();
+        new showDialog("读取成功！\n存档时间: " + save.getSaveTime());
+    }
+
+    // 根据网格大小获取块尺寸
+    private int getPieceSize(int size) {
+        return switch (size) {
+            case 2 -> 210;
+            case 3 -> 140;
+            case 5 -> 84;
+            default -> 105;
+        };
+    }
+
+    // 切换难度
+    private void changeDifficulty(int newGridSize, int newPieceSize) {
+        if (gridSize != newGridSize) {
+            gridSize = newGridSize;
+            pieceSize = newPieceSize;
+            initArrays();
+            stepCount = 0;
+            initData();
+            loadImageCache();
+            initImage();
+        }
     }
 }

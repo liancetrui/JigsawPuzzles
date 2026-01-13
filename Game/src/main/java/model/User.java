@@ -1,13 +1,7 @@
 package model;
 
-import java.io.Serial;
-import java.io.Serializable;
-
 // 用户实体类
-public class User implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 2927038108774795688L;
-    
+public class User {
     // 用户名
     private String username;
     // 密码

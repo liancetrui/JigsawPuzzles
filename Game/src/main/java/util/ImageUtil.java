@@ -20,9 +20,21 @@ public class ImageUtil {
 
         return new ImageIcon(image);
     }
+    public static ImageIcon createColorImage(int width, int height, int r, int g, int b) {
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = image.createGraphics();
+
+        // 填充背景色
+        g2d.setColor(new Color(r, g, b));
+        g2d.fillRect(0, 0, width, height);
+
+        g2d.dispose();
+
+        return new ImageIcon(image);
+    }
 
     // 创建默认的白色拼图图片(105*105像素)
     public static ImageIcon createDefaultPuzzleImage() {
-        return createColorImage(105, 105, Color.WHITE);
+        return createColorImage(105, 105, 243, 220, 123);
     }
 }
