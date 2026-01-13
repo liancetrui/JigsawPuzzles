@@ -3,13 +3,13 @@ package util;
 import java.util.Random;
 
 public class GetCode {
-    public static String getCode(){
+    public static String getCode() {
         StringBuilder code = new StringBuilder();
         Random random = new Random();
-        
+
         for (int i = 0; i < 5; i++) {
             int type = random.nextInt(3); // 0:数字, 1:大写字母, 2:小写字母
-            
+
             switch (type) {
                 case 0 -> {
                     // 生成随机数字 0-9

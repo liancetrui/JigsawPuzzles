@@ -24,7 +24,8 @@ public class AuthController {
 
     public String vipLogin(String username, char[] password) {
         // 检查用户名是否为空
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.trim()
+                .isEmpty()) {
             return "用户名不能为空";
         }
 
@@ -36,7 +37,8 @@ public class AuthController {
         // 遍历用户列表查找匹配的账号
         for (User user : userList) {
             if (username.equals(user.getUsername())
-                    && Arrays.equals(password, user.getPassword().toCharArray())) {
+                    && Arrays.equals(password, user.getPassword()
+                    .toCharArray())) {
                 return null; // 登录成功
             }
         }
@@ -45,7 +47,8 @@ public class AuthController {
 
     public String validateLogin(String username, char[] password, String captcha, String actualCode) {
         // 检查用户名是否为空
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.trim()
+                .isEmpty()) {
             return "用户名不能为空";
         }
 
@@ -55,7 +58,8 @@ public class AuthController {
         }
 
         // 检查验证码是否为空
-        if (captcha == null || captcha.trim().isEmpty()) {
+        if (captcha == null || captcha.trim()
+                .isEmpty()) {
             return "验证码不能为空";
         }
 
@@ -67,7 +71,8 @@ public class AuthController {
         // 遍历用户列表查找匹配的账号
         for (User user : userList) {
             if (username.equals(user.getUsername())
-                    && Arrays.equals(password, user.getPassword().toCharArray())) {
+                    && Arrays.equals(password, user.getPassword()
+                    .toCharArray())) {
                 return null; // 登录成功
             }
         }

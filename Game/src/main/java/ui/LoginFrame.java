@@ -4,7 +4,6 @@ import controller.AuthController;
 import util.ResourcePathUtil;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -13,7 +12,7 @@ import java.net.URL;
 
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
     private AuthController authController = new AuthController();
-    
+
     String code = authController.generateCaptcha();
     //图片
     JLabel background = new JLabel(new ImageIcon(getResourceUrl("image/login/background.png")));
@@ -30,12 +29,11 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
     ImageIcon registerButtonIcon = new ImageIcon(getResourceUrl("image/login/注册按钮.png"));
     ImageIcon registerButtonIconPressed = new ImageIcon(getResourceUrl("image/login/注册按下.png"));
     JButton registerButton = new JButton(registerButtonIcon);
-    
+
     // 显示密码按钮
     ImageIcon showPasswordIcon = new ImageIcon(getResourceUrl("image/login/显示密码.png"));
     ImageIcon showPasswordPressedIcon = new ImageIcon(getResourceUrl("image/login/显示密码按下.png"));
     JButton showPasswordButton = new JButton(showPasswordIcon);
-
 
 
     boolean isPasswordVisible = false;  // 密码是否可见
@@ -73,6 +71,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
 
     /**
      * 获取资源URL
+     *
      * @param path 资源路径
      * @return URL对象
      */
@@ -85,10 +84,10 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
      */
     private void login() {
         String errorMsg = authController.validateLogin(
-            usernameImageText.getText(),
-            passwordImageText.getPassword(),
-            captchaText.getText(),
-            code
+                usernameImageText.getText(),
+                passwordImageText.getPassword(),
+                captchaText.getText(),
+                code
         );
         if (errorMsg == null) {
             dispose();  // 销毁登录窗口，释放资源
@@ -117,7 +116,7 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         passwordImageText.setEchoChar('●');
         passwordImageText.enableInputMethods(false);
         getContentPane().add(passwordImageText);
-        
+
         // 添加显示密码按钮
         showPasswordButton.setBounds(355, 218, 29, 18);
         showPasswordButton.setBorderPainted(false);
@@ -187,7 +186,8 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
         //创建Jlabel对象管理文字并添加到弹框当中
         JLabel warning = new JLabel(content);
         warning.setBounds(0, 0, 200, 150);
-        jDialog.getContentPane().add(warning);
+        jDialog.getContentPane()
+                .add(warning);
 
         //让弹框展示出来
         jDialog.setVisible(true);

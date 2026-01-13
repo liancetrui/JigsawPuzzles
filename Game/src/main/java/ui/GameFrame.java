@@ -1,7 +1,7 @@
 package ui;
 
-import util.ResourcePathUtil;
 import util.ImageUtil;
+import util.ResourcePathUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +33,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     // 记录空白图片(值为0)在二维数组newArr里面的行列位置
     int x = 0;
     int y = 0;
-    
+
     // 图片缓存，避免每次移动都重新加载图片
     private ImageIcon[][] imageCache = new ImageIcon[4][4];
     private ImageIcon allImageCache = null;
@@ -76,7 +76,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
     //创建一个随机数对象
     int randomNum = 1;
-    
+
     // 不重复随机数生成器
     private List<Integer> animalNumbers;
     private List<Integer> girlNumbers;
@@ -103,6 +103,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         // 显示
         setVisible(true);
     }
+
     private void initJFrame() {
         //宽高
         setSize(603, 680);
@@ -123,15 +124,17 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         //禁用输入法
         enableInputMethods(false);
     }
+
     /**
      * 获取资源URL
+     *
      * @param path 资源路径
      * @return URL对象
      */
     private URL getResourceUrl(String path) {
         return ResourcePathUtil.getResourceUrl(path);
     }
-    
+
     // 初始化不重复的随机图片序列
     private void initRandomImageNumbers() {
         // 动物图片: 1-8
@@ -140,14 +143,14 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             animalNumbers.add(i);
         }
         Collections.shuffle(animalNumbers);
-        
+
         // 美女图片: 1-12
         girlNumbers = new ArrayList<>();
         for (int i = 1; i <= 12; i++) {
             girlNumbers.add(i);
         }
         Collections.shuffle(girlNumbers);
-        
+
         // 运动图片: 1-10
         sportNumbers = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
@@ -162,6 +165,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         }
         Collections.shuffle(personNumbers);
     }
+
     // 获取下一个不重复的人图片编号
     private int getNextPersonNumber() {
         if (personIndex >= personNumbers.size()) {
@@ -179,7 +183,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         }
         return animalNumbers.get(animalIndex++);
     }
-    
+
     // 获取下一个不重复的美女图片编号
     private int getNextGirlNumber() {
         if (girlIndex >= girlNumbers.size()) {
@@ -188,7 +192,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         }
         return girlNumbers.get(girlIndex++);
     }
-    
+
     // 获取下一个不重复的运动图片编号
     private int getNextSportNumber() {
         if (sportIndex >= sportNumbers.size()) {
@@ -225,7 +229,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             }
         } while (!isSolvable());  // 如果不可解，重新生成
     }
-    
+
     /**
      * 检查当前拼图是否可解
      * 15数码问题可解性判断：逆序数 + 空白所在行数(从下往上数) 为偶数时可解
@@ -234,9 +238,13 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         int inversions = 0;
         // 计算逆序数(不包括空白块0)
         for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == 0) continue;
+            if (arr[i] == 0) {
+                continue;
+            }
             for (int j = i + 1; j < arr.length; j++) {
-                if (arr[j] == 0) continue;
+                if (arr[j] == 0) {
+                    continue;
+                }
                 if (arr[i] > arr[j]) {
                     inversions++;
                 }
@@ -247,14 +255,14 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
         // 可解条件：逆序数 + 空白所在行数 为偶数
         return (inversions + blankRowFromBottom) % 2 == 0;
     }
-    
+
     /**
      * 加载并缓存当前图片集的所有图片
      */
     private void loadImageCache() {
         // 创建默认的白色图片
         ImageIcon defaultImage = ImageUtil.createDefaultPuzzleImage();
-        
+
         for (int num = 0; num <= 15; num++) {
             URL imageUrl = getResourceUrl(path + randomNum + "/" + num + ".jpg");
             if (imageUrl != null) {
@@ -264,7 +272,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
                 imageCache[num / 4][num % 4] = defaultImage;
             }
         }
-        
+
         URL allImageUrl = getResourceUrl(path + randomNum + "/" + "all.jpg");
         if (allImageUrl != null) {
             allImageCache = new ImageIcon(allImageUrl);
@@ -359,8 +367,9 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
     private boolean win() {
         for (int i = 0; i < newArr.length; i++) {
             for (int j = 0; j < newArr[i].length; j++) {
-                if (newArr[i][j] != finalArr[i][j])
+                if (newArr[i][j] != finalArr[i][j]) {
                     return false;
+                }
             }
         }
         return true;
@@ -373,7 +382,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (win()){
+        if (win()) {
             return;
         }
 
@@ -391,7 +400,7 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        if (win()){
+        if (win()) {
             return;
         }
 
@@ -511,7 +520,8 @@ public class GameFrame extends JFrame implements KeyListener, ActionListener {
             // 不关闭无法操作下面的界面
             jDialog.setModal(true);
             // 添加图片
-            jDialog.getContentPane().add(about);
+            jDialog.getContentPane()
+                    .add(about);
             // 显示
             jDialog.setVisible(true);
         }

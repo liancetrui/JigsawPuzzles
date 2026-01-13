@@ -22,7 +22,7 @@ public class splitUtil {
     public static void splitImage(String srcImagePath, String destImagePath) throws IOException {
         //获取原图
         BufferedImage original = ImageIO.read(new File(srcImagePath));
-        
+
         //创建420x420的新图
         BufferedImage resized = new BufferedImage(FULL_SIZE, FULL_SIZE, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics2D = resized.createGraphics();
@@ -53,18 +53,18 @@ public class splitUtil {
         writeHighQualityJPG(resized, new File(destImagePath + "/all.jpg"));
         System.out.println("图片处理完毕");
     }
-    
+
     /**
      * 高质量保存JPG
      */
     private static void writeHighQualityJPG(BufferedImage image, File file) throws IOException {
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName("jpg");
         ImageWriter writer = writers.next();
-        
+
         ImageWriteParam param = writer.getDefaultWriteParam();
         param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         param.setCompressionQuality(0.95f); // 95%质量
-        
+
         try (ImageOutputStream ios = ImageIO.createImageOutputStream(file)) {
             writer.setOutput(ios);
             writer.write(null, new javax.imageio.IIOImage(image, null, null), param);
