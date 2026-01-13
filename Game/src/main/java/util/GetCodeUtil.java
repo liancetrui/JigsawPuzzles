@@ -3,7 +3,7 @@ package util;
 import java.util.Random;
 
 // 验证码生成工具类
-public class GetCode {
+public class GetCodeUtil {
     // 生成随机验证码
     public static String getCode() {
         StringBuilder code = new StringBuilder();

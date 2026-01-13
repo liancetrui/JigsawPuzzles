@@ -6,7 +6,7 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONUtil;
 import model.User;
 import util.ConfigUtil;
-import util.GetCode;
+import util.GetCodeUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class AuthController {
 
     // 生成验证码
     public String generateCaptcha() {
-        return GetCode.getCode();
+        return GetCodeUtil.getCode();
     }
 
     // 检查用户名是否已存在
