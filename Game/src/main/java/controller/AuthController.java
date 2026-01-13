@@ -1,26 +1,27 @@
 package controller;
 
+import cn.hutool.core.io.FileUtil;
 import model.User;
 import util.GetCode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class AuthController {
     private static ArrayList<User> userList = new ArrayList<>();
-    
-    static {
-        userList.add(new User("114514", "1919810"));
-        userList.add(new User("1919810", "114514"));
-        userList.add(new User("1", "1"));
+
+    public void loadUsers() {
+        List<String> userInfoList = FileUtil.readUtf8Lines("D:\\java\\JigsawPuzzles\\Game\\src\\main\\data\\userinfo.txt");
+        for (String s : userInfoList) {
+            String[] split = s.split("&");
+            String username = split[0].split("=")[1];
+            String password = split[1].split("=")[1];
+            User user = new User(username, password);
+            userList.add(user);
+        }
     }
-    
-    /**
-     * 验证用户登录
-     * @param username 用户名
-     * @param password 密码
-     * @return 错误信息，如果验证通过则返回null
-     */
+
     public String vipLogin(String username, char[] password) {
         // 检查用户名是否为空
         if (username == null || username.trim().isEmpty()) {
@@ -72,11 +73,7 @@ public class AuthController {
         }
         return "用户名或密码错误";
     }
-    
-    /**
-     * 生成新的验证码
-     * @return 新的验证码
-     */
+
     public String generateCaptcha() {
         return GetCode.getCode();
     }

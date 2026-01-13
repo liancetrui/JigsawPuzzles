@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.net.URL;
-import java.util.Locale;
 
 public class LoginFrame extends JFrame implements ActionListener, MouseListener {
     private AuthController authController = new AuthController();
@@ -48,13 +47,12 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
     JTextField captchaText = new JTextField();
 
     public LoginFrame() {
+        authController.loadUsers();
         initJFrame();
-
         initView();
-
-        //显示
         setVisible(true);
     }
+
 
     private void initJFrame() {
         //宽高
@@ -230,6 +228,8 @@ public class LoginFrame extends JFrame implements ActionListener, MouseListener 
             loginButton.setIcon(loginButtonIconPressed);
         } else if (source == registerButton) {
             registerButton.setIcon(registerButtonIconPressed);
+            new RegisterFrame();
+            dispose();
         }
     }
 
